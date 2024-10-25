@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="*" element={<Error404 />}/>
-        <Route path="/" element={<RegisterForm/>}/>
+        <Route path="/" element={<Home/>}/>
 
       </Routes>
     </Router>
