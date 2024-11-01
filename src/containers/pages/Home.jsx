@@ -7,8 +7,7 @@ function Home(){
         <Layout>
             <Navbar/>
             <div className="text-red-500 pt-36">
-            Homes para hacer la bienvenida
-            
+            Homes para hacer la bin
             </div>
             <Footer/>
         </Layout>
