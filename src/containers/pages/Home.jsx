@@ -7,10 +7,10 @@ function Home(){
         <Layout>
             <Navbar/>
             <div className="text-red-500 pt-36">
-            Homes
+            Homes para hacer la bienvenida
+            
             </div>
             <Footer/>
-            
         </Layout>
     )
 }
