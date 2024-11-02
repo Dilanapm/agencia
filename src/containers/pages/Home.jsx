@@ -7,7 +7,7 @@ function Home(){
         
         <Layout>
             <Navbar/>
-            <div className="text-red-500 pt-36">
+            <div className="text-red-500 pt-20">
                 <Header/>
             </div>
             <Footer/>
