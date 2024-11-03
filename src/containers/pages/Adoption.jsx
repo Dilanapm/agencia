@@ -7,7 +7,7 @@ function Adoption(){
         <Layout>
             <Navbar/>
             <div className="text-red-500 pt-36">
-            Adopcion
+            Adoptame ctmr
             </div>
             <Footer/>
             
