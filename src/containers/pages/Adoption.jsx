@@ -7,7 +7,12 @@ function Adoption(){
         <Layout>
             <Navbar/>
             <div className="text-red-500 pt-36">
-            Adopcion
+            adoptar
+            asdasdldjsd aslkdsldjk
+
+            <div>asdjsakldsjkla
+                alsasldk
+            </div>
             </div>
             <Footer/>
             
