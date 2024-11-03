@@ -13,6 +13,7 @@ function Adoption(){
             <div>asdjsakldsjkla
                 alsasldk
             </div>
+            Adoptame ctmr
             </div>
             <Footer/>
             
