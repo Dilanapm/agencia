@@ -17,6 +17,9 @@ function Adoption(){
             <button>
                 holaaaaaa
             </button>
+            <button>
+                parte dilan
+            </button>
             <Footer/>
             
         </Layout>
