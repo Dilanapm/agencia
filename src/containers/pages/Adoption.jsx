@@ -9,6 +9,9 @@ function Adoption(){
             <div className="text-red-500 pt-36">
             Adopcion
             </div>
+            <button>
+                holaaaaaa
+            </button>
             <Footer/>
             
         </Layout>
