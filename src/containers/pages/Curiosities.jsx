@@ -2,14 +2,14 @@ import React from "react";
 import Footer from "components/navigation/Footer";
 import Navbar from "components/navigation/Navbar";
 import Layout from "hocs/layouts/Layout";
-import { Link } from "react-router-dom"; // Asegúrate de que estás usando React Router
+import { Link } from "react-router-dom";
 import curiosityImage1 from "assets/curiosities/curiosity1.jpg";
 import curiosityImage2 from "assets/curiosities/curiosity2.jpg";
 import curiosityImage3 from "assets/curiosities/curiosity3.jpg";
 import curiosityImage4 from "assets/curiosities/curiosity4.jpg";
 import curiosityImage5 from "assets/curiosities/curiosity5.jpg";
-
 import { motion } from "framer-motion";
+
 function Curiosities() {
   const curiosities = [
     {
@@ -44,45 +44,126 @@ function Curiosities() {
     },
   ];
 
+  const styles = {
+    container: {
+      paddingTop: "6rem",
+      paddingBottom: "5rem",
+      margin: "0 auto",
+      maxWidth: "1000px",
+      textAlign: "center",
+      color: "#333",
+    },
+    title: {
+      fontSize: "3rem",
+      fontWeight: "bold",
+      marginBottom: "3rem",
+      color: "#4A5568",
+    },
+    curiosityContainer: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      marginBottom: "4rem",
+      gap: "1.5rem",
+    },
+    curiosityImage: {
+      borderRadius: "1rem",
+      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+      width: "90%",
+      maxWidth: "500px",
+    },
+    curiosityContent: {
+      maxWidth: "500px",
+      textAlign: "left",
+    },
+    curiosityTitle: {
+      fontSize: "1.75rem",
+      fontWeight: "bold",
+      marginBottom: "0.75rem",
+    },
+    curiosityDescription: {
+      fontSize: "1.125rem",
+      color: "#4A5568",
+    },
+    highlightSection: {
+      textAlign: "center",
+      marginTop: "4rem",
+      padding: "1rem",
+      borderRadius: "0.5rem",
+      backgroundColor: "#FFE6E6",
+    },
+    highlightText: {
+      color: "#D64545",
+      fontWeight: "600",
+      fontSize: "1.125rem",
+      marginBottom: "1rem",
+    },
+    button: {
+      backgroundColor: "#FF5E57",
+      color: "#fff",
+      border: "none",
+      padding: "0.75rem 1.5rem",
+      borderRadius: "50px",
+      fontSize: "1rem",
+      fontWeight: "bold",
+      cursor: "pointer",
+      transition: "background-color 0.3s ease",
+    },
+    buttonHover: {
+      backgroundColor: "#FF7B70",
+    },
+  };
+
   return (
     <Layout>
       <Navbar />
-      <div className="pt-36 pb-20 container mx-auto px-4">
+      <div style={styles.container}>
+        <h1 style={styles.title}>Curiosidades</h1>
         {curiosities.map((curiosity, index) => (
           <motion.div
             key={index}
-            className={`flex flex-col md:flex-row ${
-              index % 2 === 0 ? "" : "md:flex-row-reverse"
-            } mb-16`}
+            style={{
+              ...styles.curiosityContainer,
+              flexDirection: index % 2 === 0 ? "row" : "row-reverse",
+            }}
             initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="md:w-1/2 flex justify-center">
-              <img
-                src={curiosity.image}
-                alt={curiosity.title}
-                className="rounded-xl shadow-lg w-full md:w-4/5"
-              />
-            </div>
-            <div className="md:w-1/2 flex flex-col justify-center mt-6 md:mt-0 md:pl-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                {curiosity.title}
-              </h2>
-              <p className="text-gray-700 text-lg">{curiosity.description}</p>
+            <motion.img
+              src={curiosity.image}
+              alt={curiosity.title}
+              style={styles.curiosityImage}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            />
+            <div style={styles.curiosityContent}>
+              <h2 style={styles.curiosityTitle}>{curiosity.title}</h2>
+              <p style={styles.curiosityDescription}>{curiosity.description}</p>
             </div>
           </motion.div>
         ))}
-        {/* Texto de cierre y botón de contacto */}
-        <div className="text-center mt-16 mb-8 bg-red-100 p-4 rounded-lg">
-          <p className="text-red-600 font-semibold text-lg mb-4">
+        <div style={styles.highlightSection}>
+          <p style={styles.highlightText}>
             ¿Te convencieron estas curiosidades y tips? ¡Excelente! El siguiente
             paso es contactarnos.
           </p>
           <Link to="/contact">
-            <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full">
+            <motion.button
+              style={styles.button}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  styles.buttonHover.backgroundColor)
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  styles.button.backgroundColor)
+              }
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            >
               Contactarnos
-            </button>
+            </motion.button>
           </Link>
         </div>
       </div>
