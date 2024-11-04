@@ -13,23 +13,25 @@ function Adoption() {
         <Layout>
             <Navbar />
             <div className="pt-36 container mx-auto px-4">
-                <h1 className="text-4xl font-bold text-center mb-8">Adopción de Mascotas</h1>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Llama a <AdoptionItem /> con diferentes imágenes y descripciones */}
+                <h1 className="text-5xl font-bold text-center text-gray-800 mb-8">Adopción de Mascotas</h1>
+                <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                    Ayúdanos a darles una segunda oportunidad a estos adorables amigos peludos. ¡Haz clic en "Adoptar" para darle un hogar!
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     <AdoptionItem 
                         image={Mascota1Image} 
-                        name="Nombre de Mascota 1" 
-                        description="Descripción de Mascota 1" 
+                        name="Canelo" 
+                        description="Un perrito cariñoso y fiel, perfecto para cualquier familia." 
                     />
                     <AdoptionItem 
                         image={Mascota2Image} 
-                        name="Nombre de Mascota 2" 
-                        description="Descripción de Mascota 2" 
+                        name="Luna" 
+                        description="Es juguetona y le encanta correr al aire libre." 
                     />
                     <AdoptionItem 
                         image={Mascota3Image} 
-                        name="Nombre de Mascota 3" 
-                        description="Descripción de Mascota 3" 
+                        name="Rocky" 
+                        description="Un guardián fiel y amigable que ama la compañía." 
                     />
                     {/* Agrega más mascotas según sea necesario */}
                 </div>
