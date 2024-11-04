@@ -3,6 +3,11 @@ import store from './store';
 import { Provider } from 'react-redux';
 import Error404 from './containers/errors/Error404';
 import Home from './containers/pages/Home';
+import RegisterForm from 'containers/pages/RegisterForm';
+import Adoption from 'containers/pages/Adoption';
+import Donation from 'containers/pages/Donation';
+import Curiosities from 'containers/pages/Curiosities';
+import Contact from 'containers/pages/Contact';
 function App() {
   return (
     <Provider store={store} >
@@ -10,7 +15,11 @@ function App() {
       <Routes>
         <Route path="*" element={<Error404 />}/>
         <Route path="/" element={<Home/>}/>
-
+        <Route path="/home" element={<Home/>}/>
+        <Route path="/adoptar" element={<Adoption/>}/>
+        <Route path="/donacion" element={<Donation/>}/>
+        <Route path="/curiosidades" element={<Curiosities/>}/>
+        <Route path="/contactar" element={<Contact/>}/>
       </Routes>
     </Router>
     </Provider>
