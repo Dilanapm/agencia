@@ -2,7 +2,7 @@ import React from "react";
 
 function AdoptionItem({ image, name, description }) {
     const handleAdoptClick = () => {
-        window.location.href = "https://forms.gle/AcpRe77cbHsrz5EF8"; // Redirige al formulario de adopción
+        window.open("https://forms.gle/AcpRe77cbHsrz5EF8", "_blank"); // Abre el formulario en una nueva pestaña
     };
 
     return (
