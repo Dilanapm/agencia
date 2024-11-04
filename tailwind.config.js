@@ -2,11 +2,14 @@
 module.exports = {
   content: ["./src/**/*.{html,js,jsx,ts,tsx}"],
   theme: {
-    extend: {
-      fontFamily: {
+    extend: 
+    {
+      fontFamily: 
+      {
         sans:['Inter','sans-serif'],
       },
-      colors:{
+      colors:
+      {
         "orange-button": '#FF4A39'
       },
     },

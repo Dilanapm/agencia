@@ -1,3 +1,4 @@
+import Feature from "components/home/Feature"
 import Header from "components/home/Header"
 import Footer from "components/navigation/Footer"
 import Navbar from "components/navigation/Navbar"
@@ -7,8 +8,9 @@ function Home(){
         
         <Layout>
             <Navbar/>
-            <div className="text-red-500 pt-36">
+            <div className="text-red-500 pt-20">
                 <Header/>
+                <Feature></Feature>
             </div>
             <Footer/>
         </Layout>
