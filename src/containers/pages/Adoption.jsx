@@ -36,19 +36,7 @@ function Adoption() {
                     {/* Agrega más mascotas según sea necesario */}
                 </div>
             </div>
-<<<<<<< HEAD
-            </div>
-            <button>
-                holaaaaaa
-            </button>
-            <button>
-                parte dilan
-            </button>
-            <Footer/>
-            
-=======
             <Footer />
->>>>>>> 0e1965db266538f909be86954a39d2fc03a8c531
         </Layout>
     );
 }
