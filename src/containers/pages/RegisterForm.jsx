@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: ''
+    fullName: "",
+    email: "",
+    password: "",
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -60,7 +60,9 @@ const RegisterForm = () => {
         />
       </div>
 
-      <button type="submit" className="submit-btn">Crear Cuenta</button>
+      <button type="submit" className="submit-btn">
+        Crear Cuenta
+      </button>
 
       <p className="login-link">
         ¿Tienes una cuenta? <a href="/login">Iniciar Sesión</a>
