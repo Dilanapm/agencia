@@ -20,6 +20,7 @@ function App() {
         <Route path="/donacion" element={<Donation/>}/>
         <Route path="/curiosidades" element={<Curiosities/>}/>
         <Route path="/contactar" element={<Contact/>}/>
+        <Route path="/register" element={<RegisterForm />} />
       </Routes>
     </Router>
     </Provider>
