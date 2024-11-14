@@ -36,7 +36,8 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     'apps.categoria',
     'apps.mascotas',
-    'apps.curiosidades'
+    'apps.curiosidades',
+    'apps.users'
 
 ]
 
@@ -159,7 +160,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':[
-        'rest_framework.permssions.IsAuthenticateOrReadOnly'
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
     ],
 }
 
@@ -177,3 +178,4 @@ if not DEBUG:
         "default": env.db("DATABASES_URL"),
     }
     DATABASES['default']["ATOMIC_REQUEST"] = True
+
