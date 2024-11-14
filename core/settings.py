@@ -34,6 +34,9 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
+    'apps.categoria',
+    'apps.mascotas',
+    'apps.curiosidades'
 
 ]
 
