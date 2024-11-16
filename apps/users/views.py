@@ -8,12 +8,14 @@ from django.contrib.auth import authenticate, get_user_model
 from .models import UserProfile
 from .serializers import UserProfileSerializer
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
 class RegisterUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [AllowAny]
 class LoginUserView(APIView):
     def post(self, request):
         username = request.data.get('username')

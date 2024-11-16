@@ -5,11 +5,17 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path('api/mascotas/', include('apps.mascotas.urls')),
-    path('api/categoria/', include('apps.categoria.urls')),
+    # Rutas para la API
+    path('api/mascotas/', include('apps.mascotas.urls')), # Endpoints relacionados con masctoas
+    path('api/categoria/', include('apps.categoria.urls')), # Endpoints relacionados con categorias
+    path('api/users/', include('apps.users.urls')),  # Endpoints relacionados con usuarios
+    
+    # Rutas de ckeditor (editor de texto enriquecido)
     path('ckeditor/', include('ckeditor_uploader.urls')),
+
+    # Rutas de administracion
     path('admin/', admin.site.urls),
-    path('api/users/', include('apps.users.urls')),  # Agrega esta línea para incluir las rutas de la app users
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# Redireccion al frontend react
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
