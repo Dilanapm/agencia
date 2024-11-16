@@ -9,7 +9,7 @@ urlpatterns = [
     path('api/categoria/', include('apps.categoria.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('admin/', admin.site.urls),
-    path('api/users/', include('users.urls')),  # Agrega esta línea para incluir las rutas de la app users
+    path('api/users/', include('apps.users.urls')),  # Agrega esta línea para incluir las rutas de la app users
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]

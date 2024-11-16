@@ -4,7 +4,7 @@ from .models import UserProfile
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id', 'username', 'email', 'phone', 'full_name', 'role', 'is_active', 'is_staff', 'is_superuser']
+        fields = ['id', 'username', 'email', 'phone', 'full_name', 'role', 'is_active', 'is_staff', 'is_superuser', 'password']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_active': {'read_only': True},
@@ -13,14 +13,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        # Extrae y elimina la contraseña de validated_data
+        password = validated_data.pop('password', None)
+        
         # Usa el método create_user del manager personalizado
         user = UserProfile.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            phone=validated_data.get('phone'),
-            full_name=validated_data.get('full_name'),
-            role=validated_data.get('role', 'Adoptante')
+            password=password,
+            **validated_data
         )
         return user
 
