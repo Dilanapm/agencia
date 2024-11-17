@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import { NavLink, Link } from "react-router-dom";
 import logo_huella from 'assets/img/logo_vital.png';
 import { useState } from "react";
-
+import { useNavigate } from 'react-router-dom';
 import menu_desp from "assets/img/menu.png";
 
 function Navbar() {
@@ -12,7 +12,7 @@ function Navbar() {
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-
+    const navigate = useNavigate();
     return (
         <header className= "bg-red-400 ">
             <nav className="flex justify-between items-center w-[92%] mx-auto py-4">
@@ -39,7 +39,9 @@ function Navbar() {
                 </div>
                 {/* Sign in button and menu icon */}
                 <div className="flex items-center gap-6">
-                    <button className="bg-orange-button text-white px-5 py-2 rounded-full hover:bg-[#87acec]">
+                    <button className="bg-orange-button text-white px-5 py-2 rounded-full hover:bg-[#87acec]"
+                    onClick={() => navigate('/register')}
+                    >
                         Iniciar Sesión
                         
                     </button>
