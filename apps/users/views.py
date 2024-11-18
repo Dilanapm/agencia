@@ -9,13 +9,77 @@ from .models import UserProfile
 from .serializers import UserProfileSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import AllowAny
-
+from rest_framework import permissions
 User = get_user_model()
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes = (permissions.AllowAny, )
+    def get(self, request, format=None):
+        return Response({ 'success': 'CSRF cookie configurado correctamente' })
+
+
+@method_decorator(csrf_protect, name='dispatch')
 class RegisterUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [AllowAny]
+
+    
+
+    def post(self, request, *args, **kwargs):
+        # Obtener datos del cuerpo de la solicitud
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        re_password = request.data.get('re_password')  # Nueva variable
+
+        # Validar que todos los campos estén presentes
+        if not username or not email or not password or not re_password:
+            return Response(
+                {"error": "Todos los campos son obligatorios"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validar que las contraseñas coincidan
+        if password != re_password:
+            return Response(
+                {"error": "Las contraseñas no coinciden"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validar duplicidad de nombre de usuario
+        if UserProfile.objects.filter(username=username).exists():
+            return Response(
+                {"error": "El nombre de usuario ya está en uso"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validar duplicidad de email
+        if UserProfile.objects.filter(email=email).exists():
+            return Response(
+                {"error": "El correo ya está en uso"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Crear al usuario usando el serializador
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return Response(
+            {"message": "Usuario registrado exitosamente"},
+            status=status.HTTP_201_CREATED
+        )
+    def get(self, request, *args, **kwargs):
+        return Response(
+            {"error": "Método GET no permitido en este endpoint"},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+    
+
 class LoginUserView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -53,13 +117,11 @@ class UserDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def list_users(request):
-    if request.user.role == 'Administrador':
-        users = UserProfile.objects.all()
-        serializer = UserProfileSerializer(users, many=True)
-        return Response(serializer.data)
-    return Response({'error': 'No tiene permiso para ver esta información.'}, status=403)
+    users = UserProfile.objects.all()
+    serializer = UserProfileSerializer(users, many=True)
+    return Response(serializer.data)   
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
@@ -74,7 +136,7 @@ class CreateUserView(generics.CreateAPIView):
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  
 
     def put(self, request, *args, **kwargs):
         if request.user.role != 'Administrador':
