@@ -14,6 +14,26 @@ User = get_user_model()
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
+
+class CheckAuthenticatedView(APIView):
+    def get(self, request, format=None):
+        user = self.request.user
+
+        try:
+            isAuthenticated = user.is_authenticated
+
+            if isAuthenticated:
+                return Response({'isAuthenticated': 'success'})
+            else:
+                return Response({'isAuthenticated': 'error'})
+        except:
+            return Response({'error': 'Error verificando el estado de autenticación.'})
+
+
+
+
+
+
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFToken(APIView):
     permission_classes = (permissions.AllowAny, )

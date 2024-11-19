@@ -8,6 +8,7 @@ import Adoption from 'containers/pages/Adoption';
 import Donation from 'containers/pages/Donation';
 import Curiosities from 'containers/pages/Curiosities';
 import Contact from 'containers/pages/Contact';
+import Login from 'containers/pages/Login';
 function App() {
   return (
     <Provider store={store} >
@@ -21,6 +22,7 @@ function App() {
         <Route path="/curiosidades" element={<Curiosities/>}/>
         <Route path="/contactar" element={<Contact/>}/>
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/Login" element={<Login />} />
       </Routes>
     </Router>
     </Provider>

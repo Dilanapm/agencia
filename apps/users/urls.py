@@ -6,9 +6,11 @@ from .views import (
     list_users,
     CreateUserView,
     UpdateDeleteUserView,
-    GetCSRFToken
+    GetCSRFToken,
+    CheckAuthenticatedView
 )
 urlpatterns = [
+    path('check-authenticated/', CheckAuthenticatedView.as_view(), name='check-authenticated'),
     path('register/', RegisterUserView.as_view(), name='register'),  # Registro de usuarios
     path('get-csrf-token/', GetCSRFToken.as_view(), name='get_csrf_token'), # Obtencion de Token CSRF
     path('login/', LoginUserView.as_view(), name='login'),  # Inicio de sesión

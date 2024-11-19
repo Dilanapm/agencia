@@ -164,9 +164,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication', # el sistema utilizara cookies de sesion para autenticar a los usuarios
     ]
 }
-CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST_DEV')
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS_DEV')
+# Configuración CORS
+CORS_ALLOWED_ORIGINS = env.list('CORS_ORIGIN_WHITELIST_DEV', default=[])
 
+# Configuración CSRF
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS_DEV', default=[])
+
+# Configuración API React
+REACT_APP_API_URL = env('REACT_APP_API_URL', default='http://127.0.0.1:8000')
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
 
 if not DEBUG:
