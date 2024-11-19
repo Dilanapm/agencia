@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ccc4fbd6.css",
+    "main.js": "/static/js/main.c3f2d5c7.js",
+    "static/media/curiosity2.jpg": "/static/media/curiosity2.097164dca72d16d5a64c.jpg",
+    "static/media/curiosity3.jpg": "/static/media/curiosity3.0cc739064625af649e61.jpg",
+    "static/media/curiosity4.jpg": "/static/media/curiosity4.02790824bd71bd69df18.jpg",
+    "static/media/curiosity5.jpg": "/static/media/curiosity5.05c9d1c4acea3b26f967.jpg",
+    "static/media/curiosity1.jpg": "/static/media/curiosity1.00565e645cf74e9bb79c.jpg",
+    "static/media/logo_vital.png": "/static/media/logo_vital.d53fcf43889ec6d5695a.png",
+    "static/media/mascota1.jpg": "/static/media/mascota1.e6217b53d02b4e6f0dc1.jpg",
+    "static/media/mascota2.jpg": "/static/media/mascota2.0b1e99daea80798ce4f8.jpg",
+    "static/media/mascota3.jpg": "/static/media/mascota3.59d7b982e5f3b592b3d9.jpg",
+    "index.html": "/index.html",
+    "main.ccc4fbd6.css.map": "/static/css/main.ccc4fbd6.css.map",
+    "main.c3f2d5c7.js.map": "/static/js/main.c3f2d5c7.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ccc4fbd6.css",
+    "static/js/main.c3f2d5c7.js"
+  ]
+}
