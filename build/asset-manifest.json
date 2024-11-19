@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/Dilanapm/agenci/static/css/main.d25ec476.css",
+    "main.js": "/Dilanapm/agenci/static/js/main.eef5ec0d.js",
+    "static/media/logo_vital.png": "/Dilanapm/agenci/static/media/logo_vital.d53fcf43889ec6d5695a.png",
+    "static/media/tresperros.jpg": "/Dilanapm/agenci/static/media/tresperros.75610765116515debc27.jpg",
+    "static/media/mascota1.jpg": "/Dilanapm/agenci/static/media/mascota1.e6217b53d02b4e6f0dc1.jpg",
+    "static/media/mascota2.jpg": "/Dilanapm/agenci/static/media/mascota2.0b1e99daea80798ce4f8.jpg",
+    "static/media/mascota3.jpg": "/Dilanapm/agenci/static/media/mascota3.59d7b982e5f3b592b3d9.jpg",
+    "index.html": "/Dilanapm/agenci/index.html",
+    "main.d25ec476.css.map": "/Dilanapm/agenci/static/css/main.d25ec476.css.map",
+    "main.eef5ec0d.js.map": "/Dilanapm/agenci/static/js/main.eef5ec0d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d25ec476.css",
+    "static/js/main.eef5ec0d.js"
+  ]
+}
