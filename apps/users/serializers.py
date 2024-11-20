@@ -13,15 +13,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Extrae y elimina la contraseña de validated_data
         password = validated_data.pop('password', None)
-        
-        # Usa el método create_user del manager personalizado
-        user = UserProfile.objects.create_user(
-            password=password,
-            **validated_data
-        )
-        return user
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)  # Usa set_password para guardar correctamente
+        instance.save()
+        return instance
 
     def update(self, instance, validated_data):
         # Actualiza los campos del usuario

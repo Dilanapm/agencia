@@ -14,6 +14,9 @@ User = get_user_model()
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
+
+
+
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         user = self.request.user
@@ -95,6 +98,7 @@ class RegisterUserView(generics.CreateAPIView):
     
 
 class LoginUserView(APIView):
+    permission_classes = [AllowAny]  # Permite el acceso sin autenticación  
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')

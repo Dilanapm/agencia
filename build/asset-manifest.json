@@ -1,17 +1,18 @@
 {
   "files": {
-    "main.css": "/static/css/main.02922abe.css",
-    "main.js": "/static/js/main.7b5a74c4.js",
+    "main.css": "/static/css/main.2241893b.css",
+    "main.js": "/static/js/main.e1e87522.js",
     "static/media/logo_vital.png": "/static/media/logo_vital.d53fcf43889ec6d5695a.png",
+    "static/media/tresperros.jpg": "/static/media/tresperros.75610765116515debc27.jpg",
     "static/media/mascota1.jpg": "/static/media/mascota1.e6217b53d02b4e6f0dc1.jpg",
     "static/media/mascota2.jpg": "/static/media/mascota2.0b1e99daea80798ce4f8.jpg",
     "static/media/mascota3.jpg": "/static/media/mascota3.59d7b982e5f3b592b3d9.jpg",
     "index.html": "/index.html",
-    "main.02922abe.css.map": "/static/css/main.02922abe.css.map",
-    "main.7b5a74c4.js.map": "/static/js/main.7b5a74c4.js.map"
+    "main.2241893b.css.map": "/static/css/main.2241893b.css.map",
+    "main.e1e87522.js.map": "/static/js/main.e1e87522.js.map"
   },
   "entrypoints": [
-    "static/css/main.02922abe.css",
-    "static/js/main.7b5a74c4.js"
+    "static/css/main.2241893b.css",
+    "static/js/main.e1e87522.js"
   ]
 }

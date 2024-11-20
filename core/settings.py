@@ -34,9 +34,7 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     'apps.categoria',
     'apps.mascotas',
-    'apps.curiosidades',
     'apps.users'
-
 ]
 
 THIRD_PARTY_APPS = [
