@@ -43,9 +43,6 @@ class RegisterUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [AllowAny]
-
-    
-
     def post(self, request, *args, **kwargs):
         # Obtener datos del cuerpo de la solicitud
         username = request.data.get('username')
@@ -109,9 +106,13 @@ class LoginUserView(APIView):
 
         # Autenticar al usuario
         user = authenticate(username=username, password=password)
+        
         if user is None:
+            print("Debug - Usuario no autenticado.")
+            print(f"Username: {username}, Password: {password}")
             # Comprobar si el usuario existe pero la contraseña es incorrecta
             if UserProfile.objects.filter(username=username).exists():
+                print("Debug - Usuario encontrado en la base de datos.")
                 return Response({'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST)

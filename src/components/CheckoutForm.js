@@ -9,7 +9,6 @@ const CheckoutForm = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         // Solicitar un PaymentIntent al backend
         const response = await fetch('http://localhost:3001/create-payment-intent', {
             method: 'POST',
@@ -25,7 +24,6 @@ const CheckoutForm = () => {
                 card: elements.getElement(CardElement),
             },
         });
-
         if (result.error) {
             console.error('Error:', result.error.message); // Manejar errores
         } else if (result.paymentIntent.status === 'succeeded') {

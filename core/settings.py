@@ -182,3 +182,9 @@ if not DEBUG:
     }
     DATABASES['default']["ATOMIC_REQUEST"] = True
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+AUTH_USER_MODEL = 'users.UserProfile'
