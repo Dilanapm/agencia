@@ -280,3 +280,7 @@ thumb
 sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react,django,python
+# cambios agregados para que no tome en cuenta
+build/
+static/css/
+static/js/

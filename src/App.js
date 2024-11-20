@@ -33,10 +33,12 @@ function App() {
               </Elements>
             }
           />
-          <Route path="/curiosidades" element={<Curiosities />} />
           <Route path="/contactar" element={<Contact />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/curiosities" element={<Curiosities />} />
+          <Route path="/contact" element={<Contact />} />
+
         </Routes>
       </Router>
     </Provider>
