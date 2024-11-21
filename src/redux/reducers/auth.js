@@ -33,6 +33,7 @@ function authReducer(state = initialState, action) {
         
         // cambios paraa login    
         case LOGIN_SUCCESS:
+            localStorage.setItem('role', payload.role); // Guarda el rol en localStorage
             return {
                 ...state,
                 isAuthenticated: true,

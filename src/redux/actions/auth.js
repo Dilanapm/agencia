@@ -49,9 +49,10 @@ export const login = (username, password) => async (dispatch) => {
 
     try {
         const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login/`, body, config);
-
+        console.log('Respuesta del servidor:', res.data); // debug para manejar errores console.log
         if (res.data.token) {
             localStorage.setItem('token', res.data.token); // Guarda el token en localStorage
+            localStorage.setItem('role', res.data.role); // Guarda el rol
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: res.data, // Incluye el token y cualquier otra información

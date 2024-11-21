@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { login } from '../../redux/actions/auth';
 import { Navigate } from 'react-router-dom';
-
-const LoginForm = ({ login, isAuthenticated }) => {
+import { useNavigate } from 'react-router-dom';
+const LoginForm = ({ login, isAuthenticated, role }) => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -18,8 +19,19 @@ const LoginForm = ({ login, isAuthenticated }) => {
         login(username, password);
     };
 
+    // Redirección declarativa basada en el rol
     if (isAuthenticated) {
-        return <Navigate to="/" />;
+        console.log('Rol:', role); // Confirmar el rol en la consola
+    if (role === 'Administrador') {
+        navigate('/admin-dashboard'); // Redirige al dashboard de administrador
+    } else if (role === 'Cuidador') {
+        navigate('/cuidador/dashboard'); // Redirige al dashboard de cuidador
+    } else if (role === 'Adoptante') {
+        navigate('/home'); // Redirige a la página principal
+    }
+        else {
+            return navigate('*');
+        }
     }
 
     return (
@@ -70,6 +82,7 @@ const LoginForm = ({ login, isAuthenticated }) => {
 
 const mapStateToProps = (state) => ({
     isAuthenticated: state.auth.isAuthenticated,
+    role: state.auth.role,
 });
 
 export default connect(mapStateToProps, { login })(LoginForm);
