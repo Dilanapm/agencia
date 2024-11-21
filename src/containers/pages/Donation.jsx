@@ -8,7 +8,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe("pk_test_51QMhK1BxZqvldvODisEvh7vH7OkJwudfS9PkVZGzxyK1EubsafmQM7ts9KjpNk3iiNVR745r1ciPyTZGP4KeLjsS00wdqu02uo"); // Cambia esto con tu clave pública
+const stripePromise = loadStripe("pk_test_51QMhK1BxZqvldvODisEvh7vH7OkJwudfS9PkVZGzxyK1EubsafmQM7ts9KjpNk3iiNVR745r1ciPyTZGP4KeLjsS00wdqu02uo");
 
 function Donation() {
     const [formData, setFormData] = useState({
@@ -38,9 +38,14 @@ function Donation() {
             // Solicitar un PaymentIntent al backend
             const response = await fetch("http://localhost:3001/create-payment-intent", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: parseFloat(formData.amount) })
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ amount: formData.amount }),  // Aquí se envía el monto
             });
+            
+            
+            
 
             const { clientSecret } = await response.json();
 
@@ -144,7 +149,7 @@ function Donation() {
                                 onClick={() => setPaymentMethod("cash")}
                                 className={`bg-yellow-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "cash" ? "bg-yellow-600" : ""}`}
                             >
-                                <i className="fa fa-lock"></i> Pagar en Efectivo
+                                <i className="fa fa-lock"></i> Donación Fisica
                             </button>
                         </div>
 
@@ -174,22 +179,40 @@ function Donation() {
                         )}
                         {paymentMethod === "cash" && (
                             <div className="mt-8 text-center transition-opacity duration-500">
-                                <h2 className="text-2xl font-bold mb-4">Pago en Efectivo</h2>
-                                <p>Para realizar el pago en efectivo, visita nuestras oficinas o uno de nuestros puntos autorizados.</p>
+                                <h2 className="text-2xl font-bold mb-4">Donaciones Físicas</h2>
+                                <p>
+                                    Para realizar donaciones físicas, visita nuestras oficinas o uno de
+                                    nuestros puntos autorizados.
+                                </p>
                                 <p className="mt-4">¡Muchas gracias por tu apoyo y generosidad!</p>
-                                {/* Botón para redirigir a WhatsApp */}
+                                {/* Botón de WhatsApp */}
+                                <a
+                                    href="https://wa.me/76526162?text=Hola,%20quiero%20saber%20sobre%20las%20donaciones%20físicas."
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded inline-block"
+                                >
+                                    Whatsapp
+                                </a>
+                                {/* Mapa de Google Maps */}
                                 <div className="mt-6">
-                                    <a
-                                        href="https://wa.me/76526162" // Reemplaza con tu número en formato internacional
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                                    >
-                                        Contactanos
-                                    </a>
+                                    <h3 className="text-lg font-bold mb-2">Punto Autorizado</h3>
+                                    <div className="relative h-64 w-full rounded-lg overflow-hidden shadow-md">
+                                        <iframe
+                                            title="Google Maps Location"
+                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3825.0289651417356!2d-68.12864072607542!3d-16.524635284222786!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915f21f62cf95b27%3A0xc9e60dac45aa6851!2sAlbergue%20de%20Mascotas%20%22Peluch%C3%ADn%22!5e0!3m2!1ses-419!2sbo!4v1732161714230!5m2!1ses-419!2sbo"
+                                            width="100%"
+                                            height="100%"
+                                            style={{ border: 0 }}
+                                            allowFullScreen=""
+                                            loading="lazy"
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                        ></iframe>
+                                    </div>
                                 </div>
                             </div>
                         )}
+
 
                     </form>
                 </div>
