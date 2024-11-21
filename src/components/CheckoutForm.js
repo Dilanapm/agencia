@@ -10,11 +10,22 @@ const CheckoutForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         // Solicitar un PaymentIntent al backend
-        const response = await fetch('http://localhost:3001/create-payment-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: parseFloat(amount) }), // Enviar el monto en el cuerpo
-        });
+        const response = await fetch("http://localhost:3001/create-payment-intent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: parseFloat(formData.amount) }),
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              return res.json();
+            })
+            .catch((error) => {
+              console.error("Fetch error:", error.message);
+              alert("Error al conectar con el servidor. Verifica la conexión.");
+            });
+          
 
         const { clientSecret } = await response.json(); // Recibir el clientSecret del backend
 
