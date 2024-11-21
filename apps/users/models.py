@@ -39,7 +39,13 @@ class UserProfile(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Adoptante')
 
     objects = UserProfileManager()  # Asigna el UserProfileManager
-
+    #cambios para modificar el email a minusculas
+    def save(self, *args, **kwargs):
+        # Convertir el email a minúsculas antes de guardar
+        if self.email:
+            self.email = self.email.lower()
+        super(UserProfile, self).save(*args, **kwargs)
+    
     def _str_(self):
         return self.username
 

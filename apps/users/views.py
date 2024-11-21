@@ -13,9 +13,8 @@ from rest_framework import permissions
 User = get_user_model()
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-
-
-
+import re # maneja expresiones regulares
+from apps.users.utils.validators import is_valid_password, validate_gmail_email
 
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
@@ -45,8 +44,8 @@ class RegisterUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         # Obtener datos del cuerpo de la solicitud
-        username = request.data.get('username')
-        email = request.data.get('email')
+        username = request.data.get('username').strip()
+        email = request.data.get('email').lower()   
         password = request.data.get('password')
         re_password = request.data.get('re_password')  # Nueva variable
 
@@ -56,20 +55,32 @@ class RegisterUserView(generics.CreateAPIView):
                 {"error": "Todos los campos son obligatorios"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        # Validar que el nombre de usuario no tenga espacios internos
+        if ' ' in username:
+            return Response(
+                {"error": "El nombre de usuario no debe contener espacios."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         # Validar que las contraseñas coincidan
         if password != re_password:
             return Response(
                 {"error": "Las contraseñas no coinciden"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        
+        is_valid, message = is_valid_password(password)
+        if not is_valid:
+            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+            
         # Validar duplicidad de nombre de usuario
         if UserProfile.objects.filter(username=username).exists():
             return Response(
                 {"error": "El nombre de usuario ya está en uso"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        is_valid, message = validate_gmail_email(email)
+        if not is_valid:
+            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
 
         # Validar duplicidad de email
         if UserProfile.objects.filter(email=email).exists():
@@ -95,7 +106,7 @@ class RegisterUserView(generics.CreateAPIView):
     
 
 class LoginUserView(APIView):
-    permission_classes = [AllowAny]  # Permite el acceso sin autenticación  
+    permission_classes = [AllowAny]  # Permite el acceso a cualquier usuario para que inicie sesion
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')

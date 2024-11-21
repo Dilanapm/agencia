@@ -10,7 +10,7 @@ import Adoption from 'containers/pages/Adoption';
 import Donation from 'containers/pages/Donation';
 import Curiosities from 'containers/pages/Curiosities';
 import Contact from 'containers/pages/Contact';
-import Login from 'containers/pages/Login';
+import LoginForm from 'containers/pages/LoginForm';
 
 
 // Carga la clave pública de Stripe
@@ -34,7 +34,7 @@ function App() {
             }
           />
           <Route path="/contactar" element={<Contact />} />
-          <Route path="/Login" element={<Login />} />
+          <Route path="/Login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/curiosities" element={<Curiosities />} />
           <Route path="/contact" element={<Contact />} />

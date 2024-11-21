@@ -33,7 +33,7 @@ function Navbar() {
                         <NavLink to='/home' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Inicio</NavLink>
                         <NavLink to='/adoptar' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Adoptame</NavLink>
                         <NavLink to='/donacion' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Donar</NavLink>
-                        <NavLink to='/curiosidades' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Curiosidades/Tips</NavLink>
+                        <NavLink to='/curiosities' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Curiosidades/Tips</NavLink>
                         <NavLink to='/contactar' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Contactanos</NavLink>
                     </ul>
                 </div>

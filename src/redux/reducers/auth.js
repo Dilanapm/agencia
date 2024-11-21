@@ -1,6 +1,8 @@
 import {
     REGISTER_SUCCESS,
-    REGISTER_FAIL
+    REGISTER_FAIL,
+    LOGIN_SUCCESS, // importando desde types
+    LOGIN_FAIL,
 } from '../actions/types';
 
 const initialState = {
@@ -28,6 +30,23 @@ function authReducer(state = initialState, action) {
             return {
                 ...state,
             };
+        
+        // cambios paraa login    
+        case LOGIN_SUCCESS:
+            return {
+                ...state,
+                isAuthenticated: true,
+                token: payload.token,
+                role: payload.role,
+            };
+        
+        case LOGIN_FAIL:
+            return {
+                ...state,
+                isAuthenticated: false,
+                token: null,
+            };
+        // cambios para login hasta aqui
         default:
             return state;
     }

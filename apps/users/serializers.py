@@ -33,3 +33,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    # cambios para email validacion
+    """ def validate_email(self, value):
+        # Convertir el correo a minúsculas
+        email = value.lower()
+        if UserProfile.objects.filter(email=email).exists():
+            raise serializers.ValidationError("El correo ya está registrado.")
+        return email """

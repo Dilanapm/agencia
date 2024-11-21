@@ -33,11 +33,16 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     'apps.categoria',
     'apps.mascotas',
-    'apps.users'
-    "apps.curiosities",
+    'apps.users',
 ]
 
-THIRD_PARTY_APPS = ["corsheaders", "rest_framework", "ckeditor", "ckeditor_uploader"]
+THIRD_PARTY_APPS = [
+    "corsheaders",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "ckeditor",
+    "ckeditor_uploader",
+]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 
