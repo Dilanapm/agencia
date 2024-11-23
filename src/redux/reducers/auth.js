@@ -3,6 +3,7 @@ import {
     REGISTER_FAIL,
     LOGIN_SUCCESS, // importando desde types
     LOGIN_FAIL,
+    LOGOUT,
 } from '../actions/types';
 
 const initialState = {
@@ -13,7 +14,7 @@ const initialState = {
     re_password: '',
     full_name: '',
     phone: '',
-    role: 'Adoptante'
+    role: null
     
 };
 
@@ -40,14 +41,22 @@ function authReducer(state = initialState, action) {
                 token: payload.token,
                 role: payload.role,
             };
-        
+        // cambios para login hasta aqui
+        //cambios para logout
         case LOGIN_FAIL:
             return {
                 ...state,
                 isAuthenticated: false,
                 token: null,
             };
-        // cambios para login hasta aqui
+            case LOGOUT:
+            return {
+                ...state,
+                isAuthenticated: false,
+                token: null,
+                role: null,
+            };
+        // cambios para logout hasta aqui
         default:
             return state;
     }

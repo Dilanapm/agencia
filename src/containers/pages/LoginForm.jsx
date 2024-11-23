@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { login } from '../../redux/actions/auth';
-import { Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+
+
 const LoginForm = ({ login, isAuthenticated, role }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -36,6 +37,7 @@ const LoginForm = ({ login, isAuthenticated, role }) => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            
             <form onSubmit={onSubmit} className="max-w-md w-full p-6 bg-orange-400 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
 

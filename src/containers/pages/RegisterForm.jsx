@@ -4,9 +4,11 @@ import { register } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import CSRFToken from 'components/CSRFToken';
+import { useLocation } from "react-router-dom";
 
 const RegisterForm = ({register}) => {
-  
+  const location = useLocation();
+    const message = location.state?.message;
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -46,6 +48,8 @@ const RegisterForm = ({register}) => {
         <CSRFToken/>
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Crear Cuenta</h2>
 
+        
+        {message && <p className="text-red-600 text-center font-semibold">{message}</p>}
         {/* Campo Nombre de Usuario */}
         <div className="mb-4">
           <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>

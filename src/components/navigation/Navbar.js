@@ -5,14 +5,23 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import menu_desp from "assets/img/menu.png";
 
-function Navbar() {
+function Navbar({isAuthenticated, logout}) {
     const [loading, setLoading] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        // Elimina el token de localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('role'); // Opcional si guardas el rol
+        logout(); // Si usas Redux para manejar el estado global
+        navigate('/'); // Redirige al usuario a la página principal
+    };
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-    const navigate = useNavigate();
+    const handleRetgister = () => {
+        navigate('/register'); // Redirige a la página de registro
+    };
     return (
         <header className= "bg-red-400 ">
             <nav className="flex justify-between items-center w-[92%] mx-auto py-4">
@@ -39,12 +48,21 @@ function Navbar() {
                 </div>
                 {/* Sign in button and menu icon */}
                 <div className="flex items-center gap-6">
-                    <button className="bg-orange-button text-white px-5 py-2 rounded-full hover:bg-[#87acec]"
-                    onClick={() => navigate('/register')}
+                {isAuthenticated ? (
+                    <button
+                        onClick={handleLogout}
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
                     >
-                        Iniciar Sesión
-                        
+                        Cerrar Sesión
                     </button>
+                ) : (
+                    <button
+                        onClick={handleRetgister}
+                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        Acceder
+                    </button>
+                )}
                     {/* Menu icon for small screens */}
                     <img
                         src={menu_desp}
@@ -58,6 +76,12 @@ function Navbar() {
     );
 }
 
-const mapStateToProp = (state) => ({});
+const mapStateToProps = (state) => ({
+    isAuthenticated: state.auth.isAuthenticated,
+});
 
-export default connect(mapStateToProp, {})(Navbar);
+const mapDispatchToProps = (dispatch) => ({
+    logout: () => dispatch({ type: 'LOGOUT' }), // Acción para manejar logout
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar);

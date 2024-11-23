@@ -168,7 +168,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', # solo los usuarios autenticados podran acceder a las vistas de la api
     ],
     'DEFAULT_AUTHENTICATION_CLASSES':[
-        'rest_framework.authentication.SessionAuthentication', # el sistema utilizara cookies de sesion para autenticar a los usuarios
+        'rest_framework.authentication.TokenAuthentication',
     ]
 }
 # Configuración CORS

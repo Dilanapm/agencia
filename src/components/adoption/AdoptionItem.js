@@ -1,8 +1,19 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function AdoptionItem({ image, name, description }) {
+    const navigate = useNavigate();
+
     const handleAdoptClick = () => {
-        window.location.href = "https://forms.gle/AcpRe77cbHsrz5EF8"; // Redirige al formulario de adopción
+        const token = localStorage.getItem('token'); // Verifica si el usuario tiene un token
+
+        if (token) {
+            // Si el usuario está autenticado, lo redirige al formulario de adopción
+            window.location.href = "https://forms.gle/AcpRe77cbHsrz5EF8";
+        } else {
+            // Si no está autenticado, lo redirige a la página de registro
+            navigate('/register', { state: { message: 'Por favor, crea una cuenta para poder adoptar una mascota. o si ya tienes una cuenta inicia sesion' } });
+        }
     };
 
     return (

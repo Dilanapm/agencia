@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { REGISTER_SUCCESS, REGISTER_FAIL} from './types';
+import { } from './types';
 import Cookies from 'js-cookie'
-import { LOGIN_SUCCESS, LOGIN_FAIL } from './types';
+import { LOGIN_SUCCESS, LOGIN_FAIL,REGISTER_SUCCESS, REGISTER_FAIL, LOGOUT } from './types';
 
 export const register = (username, email, password, re_password, full_name, phone, role) => async dispatch => {
     const config = {
@@ -68,6 +68,14 @@ export const login = (username, password) => async (dispatch) => {
             type: LOGIN_FAIL,
         });
     }
+};
+
+export const logout = () => (dispatch) => {
+    localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+    localStorage.removeItem('role'); // Elimina el rol del almacenamiento local
+    dispatch({
+        type: LOGOUT,
+    });
 };
 // export const checkAuthenticated = () => async dispatch => {
 //     const config = {

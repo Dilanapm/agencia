@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
-
+from django.contrib.auth import logout
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         user = self.request.user
@@ -138,7 +138,16 @@ class LoginUserView(APIView):
             print("Error al crear o recuperar el token:", e)
             return Response({"error": "Error interno del servidor"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
-        
+
+# cierre de sesion
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)  # Cierra la sesión del usuario
+        return Response({"message": "Logout exitoso."}, status=200)
+    
+    
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
