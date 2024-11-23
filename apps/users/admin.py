@@ -22,7 +22,16 @@ class UserProfileAdmin(admin.ModelAdmin):
         return request.user.is_superuser or request.user.role == 'Administrador'
     
     def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or request.user.role == 'Administrador'
+        # Solo los súperusuarios pueden eliminar usuarios
+        return request.user.is_superuser
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        # Elimina la acción de "eliminar seleccionados"
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+    
 
 # Optional: Unregister the default 'Group' model from admin if it's not needed
 admin.site.unregister(Group)

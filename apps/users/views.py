@@ -61,14 +61,7 @@ class RegisterUserView(generics.CreateAPIView):
                 {"error": "El nombre de usuario no debe contener espacios."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        # Validar que las contraseñas coincidan
-        if password != re_password:
-            return Response(
-                {"error": "Las contraseñas no coinciden"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        is_valid, message = is_valid_password(password)
+        is_valid, message = is_valid_password(password,re_password)
         if not is_valid:
             return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -146,14 +139,6 @@ class LogoutView(APIView):
     def post(self, request):
         logout(request)  # Cierra la sesión del usuario
         return Response({"message": "Logout exitoso."}, status=200)
-    
-    
-class UserDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        serializer = UserProfileSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -172,17 +157,48 @@ class CreateUserView(generics.CreateAPIView):
             return Response({'error': 'No tiene permiso para crear usuarios.'}, status=status.HTTP_403_FORBIDDEN)
         return super().post(request, *args, **kwargs)
 
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated] 
+    def put(self, request,pk=None):   
+        try:
+            user = UserProfile.objects.get(pk=pk)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = self.serializer_class(user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Eliminar cuenta
+    def delete(self, request,pk=None):
+        try:
+            user = UserProfile.objects.get(pk=pk)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        # Lógica para administradores
+        if request.user.is_staff:
+            if request.user.id == user.id:
+                return Response({"error": "No puedes desactivar tu propia cuenta."}, status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, *args, **kwargs):
-        if request.user.role != 'Administrador':
-            return Response({'error': 'No tiene permiso para actualizar usuarios.'}, status=status.HTTP_403_FORBIDDEN)
-        return super().put(request, *args, **kwargs)
+            # Desactivar cuenta si es otro usuario
+            user.is_active = False
+            user.save()
+            return Response({"message": f"La cuenta del usuario {user.username} ha sido desactivada con éxito."}, status=status.HTTP_200_OK)
+        
+        # Lógica para usuarios no administradores
+        if request.user.id != user.id:
+            return Response({"error": "No tienes permiso para eliminar esta cuenta."}, status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, *args, **kwargs):
-        if request.user.role != 'Administrador':
-            return Response({'error': 'No tiene permiso para eliminar usuarios.'}, status=status.HTTP_403_FORBIDDEN)
-        return super().delete(request, *args, **kwargs)
+        # Eliminar la propia cuenta
+        user.delete()
+        return Response({"message": "Tu cuenta ha sido eliminada con éxito."}, status=status.HTTP_200_OK)   
