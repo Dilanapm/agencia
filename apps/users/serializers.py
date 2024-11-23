@@ -7,7 +7,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'phone', 'full_name', 'role', 'is_active', 'is_staff', 'is_superuser', 'password']
         extra_kwargs = {
             'password': {'write_only': True},
-            'is_active': {'read_only': True},
             'is_staff': {'read_only': True},
             'is_superuser': {'read_only': True},
         }
@@ -42,6 +41,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             if UserProfile.objects.filter(email=email).exclude(id=instance.id).exists():
                 raise serializers.ValidationError({"email": "El correo ya está registrado con otro usuario."})
             instance.email = email
+            
+        # Validación y actualización del campo 'is_active'
+        is_active = validated_data.get('is_active', None)
+        if is_active is not None:
+            if request and not request.user.is_superuser:
+                raise serializers.ValidationError({"is_active": "No tienes permiso para modificar el estado de esta cuenta."})
+            instance.is_active = is_active
+
+
+
 
         # Validación del campo 'role'
         new_role = validated_data.get('role', None)
