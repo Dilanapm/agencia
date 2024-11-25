@@ -15,25 +15,13 @@ function AdminDashboard({ isAuthenticated, logout }) {
     useEffect(() => {
         // Validar el rol del usuario
         const role = localStorage.getItem('role');
-        console.log('Rol en localStorage:', role);
+        console.log('Rol:', role);
 
         if (role !== 'Administrador') {
             console.log('No es administrador, redirigiendo...');
             navigate('/');
         } else {
             fetchUsers();
-            // Si es administrador, cargar la lista de usuarios
-        //     const fetchUsers = async () => {
-        //         try {
-        //             const response = await api.get('/api/users/list/');
-        //             setUsers(response.data);
-        //             setLoading(false);
-        //         } catch (error) {
-        //             console.error("Error al obtener la lista de usuarios:", error);
-        //             setLoading(false);
-        //         }
-        //     };
-        //     fetchUsers();
         }
 
     }, [navigate]);
@@ -117,7 +105,7 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                     <li className="mb-4">
                             <button
                                 className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
-                                
+                                onClick={() => navigate('/user-profile')}
                             >
                                 Perfil
                             </button>

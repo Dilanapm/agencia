@@ -116,7 +116,7 @@ class LoginUserView(APIView):
     def post(self, request):
         username = request.data.get('username').lower().strip()
         password = request.data.get('password')
-
+        is_active = request.data.get('is_active')
         # Validación de campos
         if not username or not password:
             return Response({"error": "Se requieren todos los campos"}, status=status.HTTP_400_BAD_REQUEST)
@@ -127,14 +127,17 @@ class LoginUserView(APIView):
         if user is None:
             print("Debug - Usuario no autenticado.")
             print(f"Username: {username}, Password: {password}")
+
             # Comprobar si el usuario existe pero la contraseña es incorrecta
+            if is_active:
+                return Response({'error': 'Este usuario tiene la cuenta desactivada por el administrador.'}, status=status.HTTP_403_FORBIDDEN)
+        
             if UserProfile.objects.filter(username=username).exists():
                 print("Debug - Usuario encontrado en la base de datos.")
                 return Response({'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST)
-        elif not user.is_active:
-            return Response({'error': 'Este usuario está inactivo.'}, status=status.HTTP_403_FORBIDDEN)
+        
 
         # Obtener o crear el token
         try:
@@ -187,11 +190,96 @@ class CreateUserView(generics.CreateAPIView):
             return Response({'error': 'No tiene permiso para crear usuarios.'}, status=status.HTTP_403_FORBIDDEN)
         return super().post(request, *args, **kwargs)
 
-class UserDetailView(APIView):
+class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        serializer = UserProfileSerializer(request.user)
+        """
+        Obtener la información del usuario autenticado.
+        """
+        user = request.user
+        serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        """
+        Actualizar información del usuario con validaciones detalladas.
+        """
+        user = request.user
+        data = request.data
+        errors = {}
+        # Validar campos restringidos para usuarios no superusuarios
+        restricted_fields = ["is_active", "is_staff", "is_superuser"]
+        if not user.is_superuser:
+            for field in restricted_fields:
+                if field in data:
+                    errors[field] = ["No tienes permiso para modificar este campo."]
+
+        new_username = data.get("username", user.username).lower()
+        if new_username != user.username and UserProfile.objects.filter(username=new_username).exists():
+            errors["username"] = ["El nombre de usuario ya está en uso."]
+           # Verificar si se intenta cambiar el rol
+        if "role" in data and data["role"] != user.role:
+            if not user.is_superuser:
+                errors["role"] = ["No tienes permiso para cambiar tu rol."]
+
+        
+
+        # Validar correo si es proporcionado
+        email = data.get('email', None)
+        if email:
+            is_valid, message = validate_gmail_email(email)
+            if not is_valid:
+                errors["email"] = [message]
+            elif UserProfile.objects.filter(email=email).exclude(id=user.id).exists():
+                errors["email"] = ["El correo ya está en uso."]
+
+        # Validar número de teléfono
+        phone = data.get('phone', None)
+        if phone:
+            if UserProfile.objects.filter(phone=phone).exclude(id=user.id).exists():
+                errors["phone"] = ["El número de celular ya existe."]
+
+        # Validar contraseñas si son proporcionadas
+        password = data.get('password', None)
+        re_password = data.get('re_password', None)
+        if password or re_password:
+            is_valid, message = is_valid_password(password, re_password)
+            if not is_valid:
+                errors["password"] = [message]
+            else:
+                user.set_password(password)  # Cambia la contraseña
+                user.save()
+
+        # Si hay errores, retornar la respuesta con los mismos
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+       # Actualizar campos del usuario
+        serializer = UserProfileSerializer(user, data=data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            if new_username != user.username:
+                user.username = new_username  # Asigna el nuevo nombre de usuario
+            if password:  # Si hay una contraseña válida, cambiarla
+                user.set_password(password)
+            serializer.save()
+            return Response({"message": "Información actualizada correctamente."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        """
+        Eliminar la cuenta del usuario autenticado.
+        """
+        user = request.user
+        # No permitir eliminar a un Administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes eliminar esta cuenta porque eres un administrador."}, status=status.HTTP_403_FORBIDDEN)
+        user.delete()
+        return Response({"message": "Cuenta eliminada exitosamente."}, status=status.HTTP_200_OK)
+
+
+
 
 
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):

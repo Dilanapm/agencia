@@ -24,7 +24,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # Validación de contraseña
         # Validación de contraseña
         password = validated_data.get('password', None)
-        re_password = self.context['request'].data.get('re_password', None)  # Asegúrandose de obtener re_password
+        re_password = self.context.get('request', {}).data.get('re_password', None)
         if password:
             is_valid, message = is_valid_password(password, re_password)
             if not is_valid:
