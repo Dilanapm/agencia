@@ -7,15 +7,9 @@ import {
 } from '../actions/types';
 
 const initialState = {
-    isAuthenticated: null,
-    username: '',
-    email: '',
-    password: '',
-    re_password: '',
-    full_name: '',
-    phone: '',
-    role: null
-    
+    isAuthenticated: false,
+    token: null, // Intenta inicializar desde localStorage
+    role: null, // Rol desde localStorage
 };
 
 function authReducer(state = initialState, action) {
@@ -25,7 +19,7 @@ function authReducer(state = initialState, action) {
         case REGISTER_SUCCESS:
             return {
                 ...state,
-                isAuthenticated: false // Cambié esto a true para indicar éxito.
+                isAuthenticated: false
             };
         case REGISTER_FAIL:
             return {
@@ -34,6 +28,7 @@ function authReducer(state = initialState, action) {
         
         // cambios paraa login    
         case LOGIN_SUCCESS:
+            console.log("LOGIN_SUCCESS ejecutado:", payload);
             localStorage.setItem('role', payload.role); // Guarda el rol en localStorage
             return {
                 ...state,
@@ -50,6 +45,8 @@ function authReducer(state = initialState, action) {
                 token: null,
             };
             case LOGOUT:
+                localStorage.removeItem('token'); // Elimina el token de localStorage
+                localStorage.removeItem('role');
             return {
                 ...state,
                 isAuthenticated: false,

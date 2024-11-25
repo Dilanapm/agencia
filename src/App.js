@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import store from './store';
 import { Provider } from 'react-redux';
@@ -19,8 +20,8 @@ import AdminDashboard from 'containers/pages/AdminDashboard';
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
 function App() {
-  
   return (
+    
     <Provider store={store}>
       <Router>
         <Routes>

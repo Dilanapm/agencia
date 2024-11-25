@@ -44,43 +44,53 @@ class RegisterUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         # Obtener datos del cuerpo de la solicitud
-        username = request.data.get('username').strip()
-        email = request.data.get('email').lower()   
+        username = request.data.get('username').strip().lower()
+        phone = request.data.get('phone')
+        email = request.data.get('email').lower().strip()
         password = request.data.get('password')
-        re_password = request.data.get('re_password')  # Nueva variable
+        re_password = request.data.get('re_password')  # Nueva variable para confirmacion de contraseña
+        errors = {}
 
-        # Validar que todos los campos estén presentes
-        if not username or not email or not password or not re_password:
-            return Response(
-                {"error": "Todos los campos son obligatorios"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        # Validar que el nombre de usuario no tenga espacios internos
+        # para celular
+        # Validar duplicidad de numero
+        if UserProfile.objects.filter(phone=phone).exists():
+            errors["phone"] = ["El numero de celular ya existe."]
+
+
+         # Validar que todos los campos estén presentes
+        if not username:
+            errors["username"] = ["El nombre de usuario es obligatorio."]
+        if not email:
+            errors["email"] = ["El correo electrónico es obligatorio."]
+        if not password:
+            errors["password"] = ["La contraseña es obligatoria."]
+        if not re_password:
+            errors["re_password"] = ["La confirmación de la contraseña es obligatoria."]
+        
+
+         # Validar que el nombre de usuario no tenga espacios internos
         if ' ' in username:
-            return Response(
-                {"error": "El nombre de usuario no debe contener espacios."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            errors["username"] = ["El nombre de usuario no debe contener espacios."]
+        
+
         is_valid, message = is_valid_password(password,re_password)
         if not is_valid:
-            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+             errors["password"] = [message]
             
         # Validar duplicidad de nombre de usuario
         if UserProfile.objects.filter(username=username).exists():
-            return Response(
-                {"error": "El nombre de usuario ya está en uso"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            errors["username"] = ["El nombre de usuario ya está en uso."]
+        
+        # Validar formato y duplicidad de correo electronico
         is_valid, message = validate_gmail_email(email)
         if not is_valid:
-            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+            errors["email"] = [message]
+        elif UserProfile.objects.filter(email=email).exists():
+            errors["email"] = ["El correo ya está en uso."]
 
-        # Validar duplicidad de email
-        if UserProfile.objects.filter(email=email).exists():
-            return Response(
-                {"error": "El correo ya está en uso"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Si hay errores, devolverlos como respuesta
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear al usuario usando el serializador
         serializer = self.get_serializer(data=request.data)
@@ -101,7 +111,7 @@ class RegisterUserView(generics.CreateAPIView):
 class LoginUserView(APIView):
     permission_classes = [AllowAny]  # Permite el acceso a cualquier usuario para que inicie sesion
     def post(self, request):
-        username = request.data.get('username')
+        username = request.data.get('username').lower().strip()
         password = request.data.get('password')
 
         # Validación de campos

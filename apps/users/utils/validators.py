@@ -22,4 +22,7 @@ def is_valid_password(password,re_password):
 def validate_gmail_email(email):
     if not email.endswith('@gmail.com'):
         return False, "El correo debe ser una dirección @gmail.com."
+    # Verificar que no tenga espacios
+    if " " in email:
+        return False, "El correo no puede contener espacios."
     return True, "Correo válido."

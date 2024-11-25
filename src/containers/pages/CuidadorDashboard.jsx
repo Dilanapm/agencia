@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logout } from '../../redux/actions/auth';
-
+import { logout } from '../../redux/actions/auth'; // Importando la acción logout desde Redux
 function CuidadorDashboard({ logout }) {
     const navigate = useNavigate();
 
@@ -15,9 +14,9 @@ function CuidadorDashboard({ logout }) {
         }
     }, [navigate]);
 
-    const handleLogout = () => {
-        logout(); // Llama a la acción de logout
-        navigate('/login'); // Redirige al usuario al inicio de sesión
+    const handleLogoutClick = () => {
+        logout(); // Llama a la acción para hacer logout
+        navigate('/'); // Redirige al usuario
     };
 
     return (
@@ -26,7 +25,7 @@ function CuidadorDashboard({ logout }) {
                 <h1 className="text-4xl font-bold text-gray-800">Vista de Cuidador</h1>
                 <p className="mt-4 text-lg text-gray-600">Bienvenido a tu panel de cuidador</p>
                 <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="mt-6 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
                 >
                     Cerrar Sesión
@@ -36,4 +35,5 @@ function CuidadorDashboard({ logout }) {
     );
 }
 
+// Conectando el componente a Redux
 export default connect(null, { logout })(CuidadorDashboard);
