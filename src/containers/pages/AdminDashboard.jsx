@@ -8,6 +8,9 @@ function AdminDashboard({ isAuthenticated, logout }) {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [nextPage, setNextPage] = useState(null);   // paginaciones
+    const [previousPage, setPreviousPage] = useState(null); // paginaciones
+    const [currentPage, setCurrentPage] = useState(1); // paginaciones
 
     useEffect(() => {
         // Validar el rol del usuario
@@ -18,20 +21,42 @@ function AdminDashboard({ isAuthenticated, logout }) {
             console.log('No es administrador, redirigiendo...');
             navigate('/');
         } else {
-            // Si es administrador, cargar la lista de usuarios
-            const fetchUsers = async () => {
-                try {
-                    const response = await api.get('/api/users/list/');
-                    setUsers(response.data);
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Error al obtener la lista de usuarios:", error);
-                    setLoading(false);
-                }
-            };
             fetchUsers();
+            // Si es administrador, cargar la lista de usuarios
+        //     const fetchUsers = async () => {
+        //         try {
+        //             const response = await api.get('/api/users/list/');
+        //             setUsers(response.data);
+        //             setLoading(false);
+        //         } catch (error) {
+        //             console.error("Error al obtener la lista de usuarios:", error);
+        //             setLoading(false);
+        //         }
+        //     };
+        //     fetchUsers();
         }
+
     }, [navigate]);
+
+const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${currentPage}`) => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await api.get(url, {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+            });
+
+            setUsers(response.data.results);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error al obtener la lista de usuarios:", error);
+            setLoading(false);
+        }
+    };
 
     const handleLogoutClick = async () => {
         try {
@@ -67,6 +92,19 @@ function AdminDashboard({ isAuthenticated, logout }) {
         }
     };
 
+    const goToNextPage = () => {
+        if (nextPage) {
+            setCurrentPage(currentPage + 1);
+            fetchUsers(nextPage);
+        }
+    };
+
+    const goToPreviousPage = () => {
+        if (previousPage) {
+            setCurrentPage(currentPage - 1);
+            fetchUsers(previousPage);
+        }
+    };
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
@@ -76,6 +114,14 @@ function AdminDashboard({ isAuthenticated, logout }) {
                 </div>
                 <nav className="flex-1 p-4">
                     <ul>
+                    <li className="mb-4">
+                            <button
+                                className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
+                                
+                            >
+                                Perfil
+                            </button>
+                        </li>
                         <li className="mb-4">
                             <button
                                 className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
@@ -131,28 +177,54 @@ function AdminDashboard({ isAuthenticated, logout }) {
                                             <td className="border border-gray-200 px-4 py-2">{user.email}</td>
                                             <td className="border border-gray-200 px-4 py-2">{user.role}</td>
                                             <td className="border border-gray-200 px-4 py-2">
-                                                {user.is_active ? (
+                                            {user.role !== "Administrador" ? (
+                                                user.is_active ? (
                                                     <button
-                                                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                                                    onClick={() => handleDeactivate(user.id)}
-                                                >
-                                                    Desactivar
-                                                </button>
+                                                        className="bg-red-500 text-white px-4 py-2 rounded                                      hover:bg-red-700"
+                                                        onClick={() => handleDeactivate(user.id)}
+                                                    >
+                                                        Desactivar
+                                                    </button>
                                                 ) : (
                                                     <button
-                                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
-                                                onClick={() => handleActivate(user.id)}
-                                            >
-                                                Activar
-                                            </button>
-
-                                                )}
+                                                        className="bg-green-500 text-white px-4 py-2 rounded                                        hover:bg-green-700"
+                                                        onClick={() => handleActivate(user.id)}
+                                                    >
+                                                        Activar
+                                                    </button>
+                                                )
+                                            ) : (
+                                                <p className="text-gray-500">Acción no permitida</p>
+                                            )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
+
                             </table>
+                            
                         )}
+                        <div className="flex justify-between items-center mt-4">
+                            <button
+                                disabled={!previousPage}
+                                onClick={goToPreviousPage}
+                                className={`px-4 py-2 rounded ${
+                                    previousPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                }`}
+                            >
+                                Página Anterior
+                            </button>
+                            <p className="text-gray-700">Página {currentPage}</p>
+                            <button
+                                disabled={!nextPage}
+                                onClick={goToNextPage}
+                                className={`px-4 py-2 rounded ${
+                                    nextPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                }`}
+                            >
+                                Página Siguiente
+                            </button>
+                        </div>
                     </div>
                 </main>
             </div>

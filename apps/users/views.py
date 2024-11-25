@@ -16,6 +16,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
 from django.contrib.auth import logout
+from rest_framework.pagination import PageNumberPagination
+
+
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         user = self.request.user
@@ -150,12 +153,29 @@ class LogoutView(APIView):
         logout(request)  # Cierra la sesión del usuario
         return Response({"message": "Logout exitoso."}, status=200)
 
+class UserPagination(PageNumberPagination):
+    page_size = 10  # Número de usuarios por página
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])  # Solo usuarios autenticados
 def list_users(request):
+    user = request.user  # Usuario autenticado
+
+    # Verifica si el usuario tiene el rol de "Administrador"
+    if not hasattr(user, 'role') or user.role != 'Administrador':
+        return Response(
+            {"error": "No tienes permiso para acceder a esta información."},
+            status=403
+        )
+
+    # Si es administrador, retorna la lista de usuarios
     users = UserProfile.objects.all()
-    serializer = UserProfileSerializer(users, many=True)
-    return Response(serializer.data) 
+    paginator = UserPagination()
+    paginated_users = paginator.paginate_queryset(users, request)
+    serializer = UserProfileSerializer(paginated_users, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
@@ -183,7 +203,17 @@ class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+         # Verifica si el usuario es un administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes desactivar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
+        
+        
+        
         serializer = self.serializer_class(user, data=request.data, partial=True, context={'request': request})
+
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -195,6 +225,10 @@ class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # No permitir eliminar a un Administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes eliminar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
         # Lógica para administradores
         if request.user.is_staff:
             if request.user.id == user.id:

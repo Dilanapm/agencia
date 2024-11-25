@@ -164,6 +164,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "build/static")]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Número de elementos por página
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated', # solo los usuarios autenticados podran acceder a las vistas de la api
     ],
