@@ -19,6 +19,7 @@ function Donation() {
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
     const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false); // Estado del pago
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false); // Estado para el modal de confirmación
     const stripe = useStripe(); // Inicializa Stripe
     const elements = useElements(); // Maneja elementos de la tarjeta
 
@@ -29,8 +30,22 @@ function Donation() {
         });
     };
 
-    const handlePaymentSubmit = async (e) => {
+    const handleConfirm = (e) => {
         e.preventDefault();
+        setIsConfirmOpen(true); // Abre el modal de confirmación
+    };
+
+    const handleCancelConfirm = () => {
+        setIsConfirmOpen(false); // Cierra el modal de confirmación
+    };
+
+    const handleProceedPayment = async () => {
+        setIsConfirmOpen(false); // Cierra el modal de confirmación
+        await handlePaymentSubmit(); // Llama al método de pago sin evento
+    };
+
+    const handlePaymentSubmit = async (e) => {
+        if (e) e.preventDefault(); // Solo llama a preventDefault si el evento existe
 
         if (paymentMethod === "card") {
             if (!stripe || !elements) return;
@@ -41,11 +56,8 @@ function Donation() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ amount: formData.amount }),  // Aquí se envía el monto
+                body: JSON.stringify({ amount: formData.amount }), // Aquí se envía el monto
             });
-            
-            
-            
 
             const { clientSecret } = await response.json();
 
@@ -62,8 +74,8 @@ function Donation() {
             } else if (result.paymentIntent.status === "succeeded") {
                 console.log("¡Pago exitoso!"); // Confirmar éxito del pago
                 setIsPaymentSuccessful(true);
-                setIsModalOpen(true); // Abre el modal
             }
+            setIsModalOpen(true); // Abre el modal de éxito/error
         } else {
             setIsModalOpen(true); // Para QR o efectivo
         }
@@ -88,68 +100,68 @@ function Donation() {
                     <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
                         Ayúdanos a continuar nuestro trabajo de rescate y cuidado de mascotas. Tu contribución marca la diferencia.
                     </p>
-                    <form onSubmit={handlePaymentSubmit}>
+                    <form onSubmit={handleConfirm}>
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
                                 Nombre
                             </label>
-                            <input 
-                                type="text" 
-                                name="name" 
-                                value={formData.name} 
-                                onChange={handleChange} 
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                                placeholder="Tu nombre" 
-                                required 
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Tu nombre"
+                                required
                             />
                         </div>
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="amount">
                                 Monto de Donación
                             </label>
-                            <input 
-                                type="number" 
-                                name="amount" 
-                                value={formData.amount} 
-                                onChange={handleChange} 
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                                placeholder="Monto en Bs" 
-                                required 
+                            <input
+                                type="number"
+                                name="amount"
+                                value={formData.amount}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Monto en Bs"
+                                required
                             />
                         </div>
                         <div className="mb-6">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="message">
                                 Mensaje (opcional)
                             </label>
-                            <textarea 
-                                name="message" 
-                                value={formData.message} 
-                                onChange={handleChange} 
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                                placeholder="Escribe un mensaje para nosotros" 
+                            <textarea
+                                name="message"
+                                value={formData.message}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                placeholder="Escribe un mensaje para nosotros"
                             />
                         </div>
                         <div className="flex items-center justify-center mb-6">
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => setPaymentMethod("card")}
                                 className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "card" ? "bg-blue-600" : ""}`}
                             >
                                 <i className="fa fa-lock"></i> Pagar con Tarjeta
                             </button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => setPaymentMethod("qr")}
                                 className={`bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "qr" ? "bg-green-600" : ""}`}
                             >
                                 <i className="fa fa-lock"></i> Pagar con QR
                             </button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => setPaymentMethod("cash")}
                                 className={`bg-yellow-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "cash" ? "bg-yellow-600" : ""}`}
                             >
-                                <i className="fa fa-lock"></i> Donación Fisica
+                                <i className="fa fa-lock"></i> Donación Física
                             </button>
                         </div>
 
@@ -158,8 +170,8 @@ function Donation() {
                                 <h2 className="text-2xl font-bold text-center mb-4">Detalles de la Tarjeta</h2>
                                 <CardElement className="border p-2 rounded mb-4" />
                                 <div className="flex items-center justify-center">
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                                     >
                                         Confirmar Pago
@@ -177,6 +189,7 @@ function Donation() {
                                 </div>
                             </div>
                         )}
+
                         {paymentMethod === "cash" && (
                             <div className="mt-8 text-center transition-opacity duration-500">
                                 <h2 className="text-2xl font-bold mb-4">Donaciones Físicas</h2>
@@ -212,18 +225,39 @@ function Donation() {
                                 </div>
                             </div>
                         )}
-
-
                     </form>
                 </div>
-
                 {/* Imagen de los tres perros al costado derecho */}
-                <div className="hidden lg:block w-1/4 text-center">
-                    <img src={tresPerrosImage} alt="Tres perros" className="max-w-full h-auto" />
-                </div>
-            </div>
+    <div className="hidden lg:block w-1/4 text-center">
+        <img src={tresPerrosImage} alt="Tres perros" className="max-w-full h-auto" />
+    </div>
+</div>
 
-            {/* Modal de confirmación de pago */}
+            {/* Modal de confirmación */}
+            {isConfirmOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded shadow-md text-center">
+                        <h2 className="text-xl font-bold mb-4">¿Estás seguro?</h2>
+                        <p>Vas a realizar una donación por un monto de {formData.amount} Bs.</p>
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={handleProceedPayment}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mx-2"
+                            >
+                                Confirmar
+                            </button>
+                            <button
+                                onClick={handleCancelConfirm}
+                                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mx-2"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de éxito/error */}
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                     <div className="bg-white p-6 rounded shadow-md text-center">
@@ -244,7 +278,7 @@ function Donation() {
                     </div>
                 </div>
             )}
-            
+
             <Footer />
         </Layout>
     );
