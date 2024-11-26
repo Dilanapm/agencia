@@ -116,9 +116,11 @@ function UserProfile() {
                         type="text"
                         id="username"
                         name="username"
+                        onChange={handleInputChange}
                         value={userData.username}
                         className={`w-full px-4 py-2 border ${errors.username ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}   
                     />
+                    {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
                 </div>
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">

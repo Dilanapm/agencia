@@ -118,13 +118,13 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                                 Dashboard
                             </button>
                         </li>
-                        <li className="mb-4">
-                            <button
-                                className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
-                            >
-                                Informes y Reportes
-                            </button>
-                        </li>
+                        {/* <li className="mb-4">
+                        <button
+                        className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
+                         >
+                         Informes y Reportes
+                         </button>
+                        </li> */}
                     </ul>
                 </nav>
             </aside>
