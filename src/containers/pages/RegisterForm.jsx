@@ -165,7 +165,7 @@ const RegisterForm = () => {
             } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.re_password && <p className="text-red-600 font-semibold text-sm mt-1">{errors.re_password}</p>}
-          <p
+                    <p
                         onClick={togglePasswordVisibility}
                         className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline"
                     >

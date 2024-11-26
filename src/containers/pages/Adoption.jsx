@@ -12,7 +12,7 @@ function Adoption() {
     return (
         <Layout>
             <Navbar />
-            <div className="pt-36 container mx-auto px-4">
+            <div className="pt-36 container mx-auto px-4 mb-5">
                 <h1 className="text-5xl font-bold text-center text-gray-800 mb-8">Adopción de Mascotas</h1>
                 <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
                     Ayúdanos a darles una segunda oportunidad a estos adorables amigos peludos. ¡Haz clic en "Adoptar" para darle un hogar!
@@ -33,7 +33,7 @@ function Adoption() {
                         name="Rocky" 
                         description="Un guardián fiel y amigable que ama la compañía." 
                     />
-                    {/* Agrega más mascotas según sea necesario */}
+                    
                 </div>
             </div>
             <Footer />

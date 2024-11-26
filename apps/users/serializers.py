@@ -54,9 +54,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         # Validación del campo 'role'
         new_role = validated_data.get('role', None)
-        if new_role and request and not request.user.is_superuser:
-            # Solo los administradores pueden modificar el rol
-            raise serializers.ValidationError({"role": "No tienes permiso para modificar el rol de usuario."})
+        if new_role:
+            if request and not request.user.is_superuser:
+                raise serializers.ValidationError({"role": "No tienes permiso para modificar el rol de usuario."})
+            instance.role = new_role  # Asigna el nuevo rol si pasa las validaciones
 
         # Actualización de otros campos
         instance.phone = validated_data.get('phone', instance.phone)

@@ -55,7 +55,6 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
             console.error("Error al cerrar sesión:", error);
         }
     };
-
     const handleDeactivate = async (userId) => {
         try {
             await api.put(`/api/users/up-del-user/${userId}/`, { is_active: false });
@@ -93,6 +92,29 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
             fetchUsers(previousPage);
         }
     };
+
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            const token = localStorage.getItem('token');
+            await api.put(
+                `/api/users/up-del-user/${userId}/`, 
+                { role: newRole }, 
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+            setUsers(users.map(user =>
+                user.id === userId ? { ...user, role: newRole } : user
+            ));
+            alert(`Rol actualizado a ${newRole} exitosamente.`);
+        } catch (error) {
+            console.error("Error al cambiar el rol del usuario:", error);
+            alert("No se pudo actualizar el rol.");
+        }
+    };
+    
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
@@ -163,7 +185,17 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                                         <tr key={user.id} className="hover:bg-gray-50">
                                             <td className="border border-gray-200 px-4 py-2">{user.username}</td>
                                             <td className="border border-gray-200 px-4 py-2">{user.email}</td>
-                                            <td className="border border-gray-200 px-4 py-2">{user.role}</td>
+                                            <td className="border border-gray-200 px-4 py-2">
+                                                <select
+                                                    value={user.role}
+                                                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                                    className="bg-gray-50 border border-gray-300 text-gray-700 py-1 px-3 rounded"
+                                                >
+                                                    <option value="Adoptante">Adoptante</option>
+                                                    <option value="Cuidador">Cuidador</option>
+                                                    <option value="Administrador">Administrador</option>
+                                                </select>
+                                            </td>
                                             <td className="border border-gray-200 px-4 py-2">
                                             {user.role !== "Administrador" ? (
                                                 user.is_active ? (

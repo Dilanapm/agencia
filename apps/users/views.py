@@ -128,15 +128,28 @@ class LoginUserView(APIView):
             print("Debug - Usuario no autenticado.")
             print(f"Username: {username}, Password: {password}")
 
-            # Comprobar si el usuario existe pero la contraseña es incorrecta
-            if is_active:
-                return Response({'error': 'Este usuario tiene la cuenta desactivada por el administrador.'}, status=status.HTTP_403_FORBIDDEN)
-        
+            # Comprobar si el usuario existe
             if UserProfile.objects.filter(username=username).exists():
                 print("Debug - Usuario encontrado en la base de datos.")
-                return Response({'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+                user_db = UserProfile.objects.get(username=username)
+        
+                # Verificar si la cuenta está desactivada
+                if not user_db.is_active:
+                    print("Debug - Usuario desactivado.")
+                    return Response(
+                        {'error': 'Este usuario tiene la cuenta desactivada por el administrador.'},status=status.HTTP_403_FORBIDDEN
+                    )
+
+                # Si no está desactivado, pero la contraseña es incorrecta
+                return Response(
+                    {'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST
+                )
             else:
-                return Response({'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST)
+                # Si el usuario no existe
+                print("Debug - Usuario no encontrado en la base de datos.")
+                return Response(
+                    {'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST
+                )
         
 
         # Obtener o crear el token
@@ -285,52 +298,46 @@ class UserUpdateView(APIView):
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated] 
-    def put(self, request,pk=None):   
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-        
-        
-         # Verifica si el usuario es un administrador
-        if user.role == "Administrador" or user.is_superuser:
-            return Response({"error": "No puedes desactivar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
-        
-        
-        
+
+        # Verifica si el solicitante tiene permisos para modificar
+        if not request.user.is_superuser and not request.user.is_staff:
+            return Response({"error": "No tienes permiso para realizar esta acción."}, status=status.HTTP_403_FORBIDDEN)
+
+        # No permitir modificar ciertos campos directamente
+        restricted_fields = ["is_superuser", "is_staff"]
+        for field in restricted_fields:
+            if field in request.data:
+                return Response({field: ["No tienes permiso para modificar este campo."]}, status=status.HTTP_403_FORBIDDEN)
+
+        # Verifica si se intenta cambiar el rol
+        new_role = request.data.get("role", user.role)
+        if new_role != user.role:
+            if user.role == "Administrador":
+                return Response({"error": "No puedes cambiar el rol de un Administrador."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = self.serializer_class(user, data=request.data, partial=True, context={'request': request})
-
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Eliminar cuenta
-    def delete(self, request,pk=None):
+
+    def delete(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # No permitir eliminar a un Administrador
         if user.role == "Administrador" or user.is_superuser:
             return Response({"error": "No puedes eliminar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
-        # Lógica para administradores
-        if request.user.is_staff:
-            if request.user.id == user.id:
-                return Response({"error": "No puedes desactivar tu propia cuenta."}, status=status.HTTP_403_FORBIDDEN)
 
-            # Desactivar cuenta si es otro usuario
-            user.is_active = False
-            user.save()
-            return Response({"message": f"La cuenta del usuario {user.username} ha sido desactivada con éxito."}, status=status.HTTP_200_OK)
-        
-        # Lógica para usuarios no administradores
-        if request.user.id != user.id:
-            return Response({"error": "No tienes permiso para eliminar esta cuenta."}, status=status.HTTP_403_FORBIDDEN)
-
-        # Eliminar la propia cuenta
         user.delete()
-        return Response({"message": "Tu cuenta ha sido eliminada con éxito."}, status=status.HTTP_200_OK)   
+        return Response({"message": "Cuenta eliminada exitosamente."}, status=status.HTTP_200_OK)
