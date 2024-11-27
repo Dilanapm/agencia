@@ -15,6 +15,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
+from django.contrib.auth import logout
+from rest_framework.pagination import PageNumberPagination
+
 
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
@@ -44,50 +47,53 @@ class RegisterUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         # Obtener datos del cuerpo de la solicitud
-        username = request.data.get('username').strip()
-        email = request.data.get('email').lower()   
+        username = request.data.get('username').strip().lower()
+        phone = request.data.get('phone')
+        email = request.data.get('email').lower().strip()
         password = request.data.get('password')
-        re_password = request.data.get('re_password')  # Nueva variable
+        re_password = request.data.get('re_password')  # Nueva variable para confirmacion de contraseña
+        errors = {}
 
-        # Validar que todos los campos estén presentes
-        if not username or not email or not password or not re_password:
-            return Response(
-                {"error": "Todos los campos son obligatorios"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        # Validar que el nombre de usuario no tenga espacios internos
-        if ' ' in username:
-            return Response(
-                {"error": "El nombre de usuario no debe contener espacios."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        # Validar que las contraseñas coincidan
-        if password != re_password:
-            return Response(
-                {"error": "Las contraseñas no coinciden"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # para celular
+        # Validar duplicidad de numero
+        if UserProfile.objects.filter(phone=phone).exists():
+            errors["phone"] = ["El numero de celular ya existe."]
+
+
+         # Validar que todos los campos estén presentes
+        if not username:
+            errors["username"] = ["El nombre de usuario es obligatorio."]
+        if not email:
+            errors["email"] = ["El correo electrónico es obligatorio."]
+        if not password:
+            errors["password"] = ["La contraseña es obligatoria."]
+        if not re_password:
+            errors["re_password"] = ["La confirmación de la contraseña es obligatoria."]
         
-        is_valid, message = is_valid_password(password)
+
+         # Validar que el nombre de usuario no tenga espacios internos
+        if ' ' in username:
+            errors["username"] = ["El nombre de usuario no debe contener espacios."]
+        
+
+        is_valid, message = is_valid_password(password,re_password)
         if not is_valid:
-            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+             errors["password"] = [message]
             
         # Validar duplicidad de nombre de usuario
         if UserProfile.objects.filter(username=username).exists():
-            return Response(
-                {"error": "El nombre de usuario ya está en uso"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            errors["username"] = ["El nombre de usuario ya está en uso."]
+        
+        # Validar formato y duplicidad de correo electronico
         is_valid, message = validate_gmail_email(email)
         if not is_valid:
-            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+            errors["email"] = [message]
+        elif UserProfile.objects.filter(email=email).exists():
+            errors["email"] = ["El correo ya está en uso."]
 
-        # Validar duplicidad de email
-        if UserProfile.objects.filter(email=email).exists():
-            return Response(
-                {"error": "El correo ya está en uso"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Si hay errores, devolverlos como respuesta
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear al usuario usando el serializador
         serializer = self.get_serializer(data=request.data)
@@ -108,7 +114,7 @@ class RegisterUserView(generics.CreateAPIView):
 class LoginUserView(APIView):
     permission_classes = [AllowAny]  # Permite el acceso a cualquier usuario para que inicie sesion
     def post(self, request):
-        username = request.data.get('username')
+        username = request.data.get('username').lower().strip()
         password = request.data.get('password')
 
         # Validación de campos
@@ -138,20 +144,38 @@ class LoginUserView(APIView):
             print("Error al crear o recuperar el token:", e)
             return Response({"error": "Error interno del servidor"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
-        
-class UserDetailView(APIView):
+
+# cierre de sesion
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        serializer = UserProfileSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def post(self, request):
+        logout(request)  # Cierra la sesión del usuario
+        return Response({"message": "Logout exitoso."}, status=200)
+
+class UserPagination(PageNumberPagination):
+    page_size = 10  # Número de usuarios por página
+    page_size_query_param = 'page_size'
+    max_page_size = 50
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])  # Solo usuarios autenticados
 def list_users(request):
+    user = request.user  # Usuario autenticado
+
+    # Verifica si el usuario tiene el rol de "Administrador"
+    if not hasattr(user, 'role') or user.role != 'Administrador':
+        return Response(
+            {"error": "No tienes permiso para acceder a esta información."},
+            status=403
+        )
+
+    # Si es administrador, retorna la lista de usuarios
     users = UserProfile.objects.all()
-    serializer = UserProfileSerializer(users, many=True)
-    return Response(serializer.data) 
+    paginator = UserPagination()
+    paginated_users = paginator.paginate_queryset(users, request)
+    serializer = UserProfileSerializer(paginated_users, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
@@ -163,17 +187,62 @@ class CreateUserView(generics.CreateAPIView):
             return Response({'error': 'No tiene permiso para crear usuarios.'}, status=status.HTTP_403_FORBIDDEN)
         return super().post(request, *args, **kwargs)
 
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]  
+    permission_classes = [IsAuthenticated] 
+    def put(self, request,pk=None):   
+        try:
+            user = UserProfile.objects.get(pk=pk)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+         # Verifica si el usuario es un administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes desactivar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
+        
+        
+        
+        serializer = self.serializer_class(user, data=request.data, partial=True, context={'request': request})
 
-    def put(self, request, *args, **kwargs):
-        if request.user.role != 'Administrador':
-            return Response({'error': 'No tiene permiso para actualizar usuarios.'}, status=status.HTTP_403_FORBIDDEN)
-        return super().put(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        if request.user.role != 'Administrador':
-            return Response({'error': 'No tiene permiso para eliminar usuarios.'}, status=status.HTTP_403_FORBIDDEN)
-        return super().delete(request, *args, **kwargs)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Eliminar cuenta
+    def delete(self, request,pk=None):
+        try:
+            user = UserProfile.objects.get(pk=pk)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # No permitir eliminar a un Administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes eliminar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
+        # Lógica para administradores
+        if request.user.is_staff:
+            if request.user.id == user.id:
+                return Response({"error": "No puedes desactivar tu propia cuenta."}, status=status.HTTP_403_FORBIDDEN)
+
+            # Desactivar cuenta si es otro usuario
+            user.is_active = False
+            user.save()
+            return Response({"message": f"La cuenta del usuario {user.username} ha sido desactivada con éxito."}, status=status.HTTP_200_OK)
+        
+        # Lógica para usuarios no administradores
+        if request.user.id != user.id:
+            return Response({"error": "No tienes permiso para eliminar esta cuenta."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Eliminar la propia cuenta
+        user.delete()
+        return Response({"message": "Tu cuenta ha sido eliminada con éxito."}, status=status.HTTP_200_OK)   

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { register } from '../../redux/actions/auth';
+// import { register } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import CSRFToken from 'components/CSRFToken';
-
-const RegisterForm = ({register}) => {
-  
+import { useLocation } from "react-router-dom";
+import Cookies from 'js-cookie';
+const RegisterForm = () => {
+  const location = useLocation();
+  const message = location.state?.message;
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -17,19 +19,56 @@ const RegisterForm = ({register}) => {
     role: 'Adoptante', // Valor predeterminado
   });
 
+  const [errors, setErrors] = useState({});
   const [accountCreated, setAccountCreated] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const { username, email, password, re_password, full_name, phone, role} = formData;
 
   const onchange = e => setFormData({...formData, [e.target.name]: e.target.value})
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-
-  const onSubmit = e => {
+  const onSubmit = async(e) => {
     e.preventDefault();
-    if(password === re_password){
-      register(username, email, password, re_password, full_name, phone, role);
-      setAccountCreated(true);
+    setErrors({}); // Limpia los errores previos
+    const csrftoken = Cookies.get('csrftoken'); // Obtén el CSRF Token de las cookies
+
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken, // Incluye el CSRF Token en la solicitud
+            },
+        };
+
+        const body = {
+            username,
+            email,
+            password,
+            re_password,
+            full_name,
+            phone,
+            role,
+        };
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/register/`, body, config);
+
+
+      if (res.status === 201) {
+        setAccountCreated(true); // Cambia el estado para redirigir
     }
+  } catch (err) {
+      // Maneja los errores del backend y actualiza el estado `errors`
+      if (err.response && err.response.data) {
+        const backendErrors = err.response.data;
+         // Verifica si es un error genérico o un campo específico
+         if (backendErrors.error) {
+          setErrors({ general: backendErrors.error }); // Error genérico del backend
+          } else {
+          setErrors(backendErrors); // Si es un error por campo
+          }
+      } else {
+          setErrors({ general: 'Ocurrió un error al procesar tu solicitud. Intenta nuevamente.' });
+      }
+  }
   }
 
   if (accountCreated){
@@ -42,23 +81,32 @@ const RegisterForm = ({register}) => {
   return (
     
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={e=> onSubmit(e)} className="max-w-md w-full p-6 bg-orange-400 rounded-lg shadow-lg">
+      <form onSubmit={onSubmit} className="max-w-md w-full p-6 bg-orange-400 rounded-lg shadow-lg">
         <CSRFToken/>
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Crear Cuenta</h2>
 
+        {/* Muestra errores generales */}
+        {errors.general && <p className="text-red-600 text-center font-semibold">{errors.general}</p>}
+
+        {message && <p className="text-red-600 text-center font-semibold">{message}</p>}
         {/* Campo Nombre de Usuario */}
         <div className="mb-4">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre de Usuario
+          </label>
           <input
-            type="text"
-            id="username"
-            name="username"
-            onChange={e => onchange(e)}
-            value={username}
-            placeholder="Usuario"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="text"
+              id="username"
+              name="username"
+              onChange={onchange}
+              value={username}
+              placeholder="Usuario"
+              required
+              className={`w-full px-4 py-2 border-4 ${
+                  errors.username ? 'border-red-500' : 'border-gray-300'
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
+          {errors.username && <p className="text-red-600 font-semibold text-sm mt-1">{errors.username}</p>}
         </div>
 
         {/* Campo Email */}
@@ -68,43 +116,59 @@ const RegisterForm = ({register}) => {
             type="email"
             id="email"
             name="email"
-            onChange={e => onchange(e)}
+            onChange={onchange}
             value={email}
-            
             placeholder="Correo Electrónico"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border-4
+              ${
+                errors.email ? 'border-red-500' : 'border-gray-300'
+            }
+              rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
+          {errors.email && <p className="text-red-600 font-semibold text-sm mt-1">{errors.email}</p>}
         </div>
 
         {/* Campo Contraseña */}
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             id="password"
             name="password"
-            onChange={e=>onchange(e)}
+            onChange={onchange}
             value={password}
             placeholder="Contraseña"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border-4 ${
+              errors.password ? 'border-red-500':'border-gray-300'
+            } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
+          {errors.password && <p className="text-red-600 font-semibold text-sm mt-1">{errors.password}</p>}
         </div>
 
         {/* Campo Confirmar Contraseña */}
         <div className="mb-4">
           <label htmlFor="re_password" className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             id="re_password"
             name="re_password"
-            onChange={e=>onchange(e)}
+            onChange={onchange}
             value={re_password}
             placeholder="Confirmar Contraseña"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border-4 ${
+              errors.re_password ? 'border-red-500':'border-gray-300'
+            } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
+          {errors.re_password && <p className="text-red-600 font-semibold text-sm mt-1">{errors.re_password}</p>}
+          <p
+                        onClick={togglePasswordVisibility}
+                        className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline"
+                    >
+                        {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    </p>
         </div>
 
         {/* Campo Nombre Completo */}
@@ -114,12 +178,12 @@ const RegisterForm = ({register}) => {
             type="text"
             id="full_name"
             name="full_name"
-            onChange={e => onchange(e)}
+            onChange={onchange}
             value={full_name}
             
             placeholder="Nombre Completo"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border-4 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -130,12 +194,16 @@ const RegisterForm = ({register}) => {
             type="text"
             id="phone"
             name="phone"
-            onChange={e => onchange(e)}
-            value={phone}
-            
+            onChange={onchange}
+            value={phone}  
             placeholder="Teléfono"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-4 py-2 border-4
+              ${
+                errors.phone ? 'border-red-500' : 'border-gray-300'
+            }
+              rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
+          {errors.phone && <p className="text-red-600 font-semibold text-sm mt-1">{errors.phone}</p>}
         </div>
 
         {/* Botón para enviar el formulario */}
@@ -157,4 +225,5 @@ const RegisterForm = ({register}) => {
   );
 };
 
-export default connect(null,{ register })(RegisterForm);
+// export default connect(null,{ register })(RegisterForm);
+export default RegisterForm;
