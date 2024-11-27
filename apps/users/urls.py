@@ -8,7 +8,9 @@ from .views import (
     GetCSRFToken,
     CheckAuthenticatedView,
     UpdateDeleteUserView,
-    LogoutView
+    LogoutView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView
 )
 urlpatterns = [
     path('check-authenticated/', CheckAuthenticatedView.as_view(), name='check-authenticated'),
@@ -20,4 +22,6 @@ urlpatterns = [
     path('create/', CreateUserView.as_view(), name='user-create'),  # Creación de usuario
     path('me/', UserUpdateView.as_view(), name='user-up'),  # Detalle del usuario autenticado
     path('up-del-user/<int:pk>/', UpdateDeleteUserView.as_view(), name='user-update-delete'),  # Actualizar o eliminar usuario
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

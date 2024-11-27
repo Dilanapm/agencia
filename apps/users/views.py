@@ -10,13 +10,17 @@ from .serializers import UserProfileSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import AllowAny
 from rest_framework import permissions
-User = get_user_model()
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
 from django.contrib.auth import logout
 from rest_framework.pagination import PageNumberPagination
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+User = get_user_model()
 
 
 class CheckAuthenticatedView(APIView):
@@ -341,3 +345,53 @@ class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
 
         user.delete()
         return Response({"message": "Cuenta eliminada exitosamente."}, status=status.HTTP_200_OK)
+
+
+## CAMBIOS PARA RESTABLECER CONTRASEÑA
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email').lower()
+        if not email:
+            return Response({"error": "El correo es requerido."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+            token_generator = PasswordResetTokenGenerator()
+            token = token_generator.make_token(user)
+            reset_url = f"{request.build_absolute_uri('/reset-password')}?token={token}&email={email}"
+
+            send_mail(
+                'Recuperar Contraseña',
+                f"Usa este enlace para resetear tu contraseña: {reset_url}",
+                'noreply@yourdomain.com',
+                [email],
+                fail_silently=False,
+            )
+            return Response({"message": "Se ha enviado un correo con las instrucciones para resetear tu contraseña."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "No se encontró una cuenta con este correo."}, status=status.HTTP_404_NOT_FOUND)
+        
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+        re_password = request.data.get('re_password')
+
+        if new_password != re_password:
+            return Response({"error": "Las contraseñas no coinciden."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+            token_generator = PasswordResetTokenGenerator()
+            if not token_generator.check_token(user, token):
+                return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Contraseña actualizada con éxito."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
