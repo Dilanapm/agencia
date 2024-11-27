@@ -5,7 +5,7 @@ import adoptIcon from "assets/curiosities/curiosity1.jpg";
 import donateIcon from "assets/curiosities/curiosity1.jpg";
 import curiositiesIcon from "assets/curiosities/curiosity1.jpg";
 import contactIcon from "assets/curiosities/curiosity1.jpg";
-
+import dogImage from 'assets/dog_dueno.jpg';
 function Home() {
   const features = [
     {
@@ -50,47 +50,16 @@ function Home() {
         <p className="text-xl text-gray-700 mt-4">
           Ayudamos a perritos a encontrar un hogar lleno de amor y felicidad.
         </p>
-        <motion.img
-          src="assets/hero-image.jpg" // Imagen decorativa para la sección hero
-          alt="VitalDoggy"
-          className="w-full max-w-lg mx-auto mt-8 rounded-lg shadow-lg"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        />
+        
+<motion.img
+  src={dogImage}
+  alt="VitalDoggy"
+  className="w-full max-w-lg mx-auto mt-8 rounded-lg shadow-lg"
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1 }}
+/>
       </section>
-
-      {/* Feature Section */}
-      <section className="py-16">
-        <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
-          ¿Cómo podemos ayudarte?
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="p-6 bg-white rounded-lg shadow-lg text-center hover:shadow-xl"
-              whileHover={{ scale: 1.05 }}
-            >
-              <img
-                src={feature.icon}
-                alt={feature.title}
-                className="w-16 h-16 mx-auto mb-4"
-              />
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 mb-4">{feature.description}</p>
-              <Link to={feature.link}>
-                <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
-                  {feature.buttonText}
-                </button>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* Misión y Visión Section */}
       <section className="bg-gray-100 py-20">
         <div className="container mx-auto text-center">
@@ -128,6 +97,39 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Feature Section */}
+      <section className="py-16">
+        <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+          ¿Cómo podemos ayudarte?
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              className="p-6 bg-white rounded-lg shadow-lg text-center hover:shadow-xl"
+              whileHover={{ scale: 1.05 }}
+            >
+              <img
+                src={feature.icon}
+                alt={feature.title}
+                className="w-16 h-16 mx-auto mb-4"
+              />
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600 mb-4">{feature.description}</p>
+              <Link to={feature.link}>
+                <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
+                  {feature.buttonText}
+                </button>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      
 
       {/* Testimonios Section */}
       <section className="py-16">

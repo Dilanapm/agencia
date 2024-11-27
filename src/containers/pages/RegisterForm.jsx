@@ -6,9 +6,11 @@ import { Navigate } from 'react-router-dom';
 import CSRFToken from 'components/CSRFToken';
 import { useLocation } from "react-router-dom";
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 const RegisterForm = () => {
   const location = useLocation();
   const message = location.state?.message;
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -163,7 +165,7 @@ const RegisterForm = () => {
             } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.re_password && <p className="text-red-600 font-semibold text-sm mt-1">{errors.re_password}</p>}
-          <p
+                    <p
                         onClick={togglePasswordVisibility}
                         className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline"
                     >
@@ -204,15 +206,23 @@ const RegisterForm = () => {
               rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.phone && <p className="text-red-600 font-semibold text-sm mt-1">{errors.phone}</p>}
-        </div>
-
+        </div >
+        <div className="flex justify-between mt-4">
+        <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-4 py-2  bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400" >
+            Volver
+        </button>
         {/* Botón para enviar el formulario */}
         <button
           type="submit"
-          className="w-full bg-gray-700 text-white py-2 rounded-md font-semibold hover:bg-blue-600 transition duration-300"
+          className="px-4 py-2  bg-blue-500 text-white rounded-lg hover:bg-blue-600"
         >
           Crear Cuenta
         </button>
+        
+        </div>
         <p className="text-center text-black mt-4">
           ¿Tienes una cuenta?{' '}
           <a href="/Login" className="text-blue-800 hover:underline">

@@ -12,7 +12,7 @@ urlpatterns = [
     
     # Rutas de ckeditor (editor de texto enriquecido)
     path('ckeditor/', include('ckeditor_uploader.urls')),
-
+    path('api/curiosities/', include('apps.curiosities.urls')),
     # Rutas de administracion
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

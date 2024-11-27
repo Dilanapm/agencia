@@ -10,13 +10,17 @@ from .serializers import UserProfileSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import AllowAny
 from rest_framework import permissions
-User = get_user_model()
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
 from django.contrib.auth import logout
 from rest_framework.pagination import PageNumberPagination
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+User = get_user_model()
 
 
 class CheckAuthenticatedView(APIView):
@@ -116,7 +120,7 @@ class LoginUserView(APIView):
     def post(self, request):
         username = request.data.get('username').lower().strip()
         password = request.data.get('password')
-
+        is_active = request.data.get('is_active')
         # Validación de campos
         if not username or not password:
             return Response({"error": "Se requieren todos los campos"}, status=status.HTTP_400_BAD_REQUEST)
@@ -127,14 +131,30 @@ class LoginUserView(APIView):
         if user is None:
             print("Debug - Usuario no autenticado.")
             print(f"Username: {username}, Password: {password}")
-            # Comprobar si el usuario existe pero la contraseña es incorrecta
+
+            # Comprobar si el usuario existe
             if UserProfile.objects.filter(username=username).exists():
                 print("Debug - Usuario encontrado en la base de datos.")
-                return Response({'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+                user_db = UserProfile.objects.get(username=username)
+        
+                # Verificar si la cuenta está desactivada
+                if not user_db.is_active:
+                    print("Debug - Usuario desactivado.")
+                    return Response(
+                        {'error': 'Este usuario tiene la cuenta desactivada por el administrador.'},status=status.HTTP_403_FORBIDDEN
+                    )
+
+                # Si no está desactivado, pero la contraseña es incorrecta
+                return Response(
+                    {'error': 'Contraseña incorrecta.'}, status=status.HTTP_400_BAD_REQUEST
+                )
             else:
-                return Response({'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST)
-        elif not user.is_active:
-            return Response({'error': 'Este usuario está inactivo.'}, status=status.HTTP_403_FORBIDDEN)
+                # Si el usuario no existe
+                print("Debug - Usuario no encontrado en la base de datos.")
+                return Response(
+                    {'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST
+                )
+        
 
         # Obtener o crear el token
         try:
@@ -187,62 +207,191 @@ class CreateUserView(generics.CreateAPIView):
             return Response({'error': 'No tiene permiso para crear usuarios.'}, status=status.HTTP_403_FORBIDDEN)
         return super().post(request, *args, **kwargs)
 
-class UserDetailView(APIView):
+class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        serializer = UserProfileSerializer(request.user)
+        """
+        Obtener la información del usuario autenticado.
+        """
+        user = request.user
+        serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        """
+        Actualizar información del usuario con validaciones detalladas.
+        """
+        user = request.user
+        data = request.data
+        errors = {}
+        # Validar campos restringidos para usuarios no superusuarios
+        restricted_fields = ["is_active", "is_staff", "is_superuser"]
+        if not user.is_superuser:
+            for field in restricted_fields:
+                if field in data:
+                    errors[field] = ["No tienes permiso para modificar este campo."]
+
+        new_username = data.get("username", user.username).lower()
+        if new_username != user.username and UserProfile.objects.filter(username=new_username).exists():
+            errors["username"] = ["El nombre de usuario ya está en uso."]
+           # Verificar si se intenta cambiar el rol
+        if "role" in data and data["role"] != user.role:
+            if not user.is_superuser:
+                errors["role"] = ["No tienes permiso para cambiar tu rol."]
+
+        
+
+        # Validar correo si es proporcionado
+        email = data.get('email', None)
+        if email:
+            is_valid, message = validate_gmail_email(email)
+            if not is_valid:
+                errors["email"] = [message]
+            elif UserProfile.objects.filter(email=email).exclude(id=user.id).exists():
+                errors["email"] = ["El correo ya está en uso."]
+
+        # Validar número de teléfono
+        phone = data.get('phone', None)
+        if phone:
+            if UserProfile.objects.filter(phone=phone).exclude(id=user.id).exists():
+                errors["phone"] = ["El número de celular ya existe."]
+
+        # Validar contraseñas si son proporcionadas
+        password = data.get('password', None)
+        re_password = data.get('re_password', None)
+        if password or re_password:
+            is_valid, message = is_valid_password(password, re_password)
+            if not is_valid:
+                errors["password"] = [message]
+            else:
+                user.set_password(password)  # Cambia la contraseña
+                user.save()
+
+        # Si hay errores, retornar la respuesta con los mismos
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+       # Actualizar campos del usuario
+        serializer = UserProfileSerializer(user, data=data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            if new_username != user.username:
+                user.username = new_username  # Asigna el nuevo nombre de usuario
+            if password:  # Si hay una contraseña válida, cambiarla
+                user.set_password(password)
+            serializer.save()
+            return Response({"message": "Información actualizada correctamente."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        """
+        Eliminar la cuenta del usuario autenticado.
+        """
+        user = request.user
+        # No permitir eliminar a un Administrador
+        if user.role == "Administrador" or user.is_superuser:
+            return Response({"error": "No puedes eliminar esta cuenta porque eres un administrador."}, status=status.HTTP_403_FORBIDDEN)
+        user.delete()
+        return Response({"message": "Cuenta eliminada exitosamente."}, status=status.HTTP_200_OK)
+
+
+
 
 
 class UpdateDeleteUserView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated] 
-    def put(self, request,pk=None):   
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-        
-        
-         # Verifica si el usuario es un administrador
-        if user.role == "Administrador" or user.is_superuser:
-            return Response({"error": "No puedes desactivar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
-        
-        
-        
+
+        # Verifica si el solicitante tiene permisos para modificar
+        if not request.user.is_superuser and not request.user.is_staff:
+            return Response({"error": "No tienes permiso para realizar esta acción."}, status=status.HTTP_403_FORBIDDEN)
+
+        # No permitir modificar ciertos campos directamente
+        restricted_fields = ["is_superuser", "is_staff"]
+        for field in restricted_fields:
+            if field in request.data:
+                return Response({field: ["No tienes permiso para modificar este campo."]}, status=status.HTTP_403_FORBIDDEN)
+
+        # Verifica si se intenta cambiar el rol
+        new_role = request.data.get("role", user.role)
+        if new_role != user.role:
+            if user.role == "Administrador":
+                return Response({"error": "No puedes cambiar el rol de un Administrador."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer = self.serializer_class(user, data=request.data, partial=True, context={'request': request})
-
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Eliminar cuenta
-    def delete(self, request,pk=None):
+
+    def delete(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
         except UserProfile.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # No permitir eliminar a un Administrador
         if user.role == "Administrador" or user.is_superuser:
             return Response({"error": "No puedes eliminar a un Administrador."}, status=status.HTTP_403_FORBIDDEN)
-        # Lógica para administradores
-        if request.user.is_staff:
-            if request.user.id == user.id:
-                return Response({"error": "No puedes desactivar tu propia cuenta."}, status=status.HTTP_403_FORBIDDEN)
 
-            # Desactivar cuenta si es otro usuario
-            user.is_active = False
-            user.save()
-            return Response({"message": f"La cuenta del usuario {user.username} ha sido desactivada con éxito."}, status=status.HTTP_200_OK)
-        
-        # Lógica para usuarios no administradores
-        if request.user.id != user.id:
-            return Response({"error": "No tienes permiso para eliminar esta cuenta."}, status=status.HTTP_403_FORBIDDEN)
-
-        # Eliminar la propia cuenta
         user.delete()
-        return Response({"message": "Tu cuenta ha sido eliminada con éxito."}, status=status.HTTP_200_OK)   
+        return Response({"message": "Cuenta eliminada exitosamente."}, status=status.HTTP_200_OK)
+
+
+## CAMBIOS PARA RESTABLECER CONTRASEÑA
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email').lower()
+        if not email:
+            return Response({"error": "El correo es requerido."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+            token_generator = PasswordResetTokenGenerator()
+            token = token_generator.make_token(user)
+            reset_url = f"{request.build_absolute_uri('/reset-password')}?token={token}&email={email}"
+
+            send_mail(
+                'Recuperar Contraseña',
+                f"Usa este enlace para resetear tu contraseña: {reset_url}",
+                'noreply@yourdomain.com',
+                [email],
+                fail_silently=False,
+            )
+            return Response({"message": "Se ha enviado un correo con las instrucciones para resetear tu contraseña."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "No se encontró una cuenta con este correo."}, status=status.HTTP_404_NOT_FOUND)
+        
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+        re_password = request.data.get('re_password')
+
+        if new_password != re_password:
+            return Response({"error": "Las contraseñas no coinciden."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+            token_generator = PasswordResetTokenGenerator()
+            if not token_generator.check_token(user, token):
+                return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Contraseña actualizada con éxito."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)

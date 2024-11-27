@@ -57,12 +57,21 @@ function Navbar({ isAuthenticated, logout }) {
                 {/* Sign in button and menu icon */}
                 <div className="flex items-center gap-6">
                     {isAuthenticated ? (
+                        <>
+                        {/* Icono de usuario */}
+                        <img
+                            src={require('assets/usuario.png')}
+                            alt="Usuario"
+                            className="w-8 h-8 cursor-pointer rounded-full"
+                            onClick={() => navigate('/user-profile')}
+                        />
                         <button
                             onClick={handleLogoutClick}
                             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
                         >
                             Cerrar Sesión
                         </button>
+                    </>     
                     ) : (
                         <button
                             onClick={handleRegisterClick}

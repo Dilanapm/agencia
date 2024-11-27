@@ -14,7 +14,7 @@ import Contact from 'containers/pages/Contact';
 import LoginForm from 'containers/pages/LoginForm';
 import CuidadorDashboard from 'containers/pages/CuidadorDashboard';
 import AdminDashboard from 'containers/pages/AdminDashboard';
-
+import UserProfile from 'containers/pages/UserProfile';
 
 // Carga la clave pública de Stripe
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
@@ -44,7 +44,7 @@ function App() {
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/curiosities" element={<Curiosities />} />
           <Route path="/contact" element={<Contact />} />
-
+          <Route path="/user-profile" element={<UserProfile />} /> 
         </Routes>
       </Router>
     </Provider>

@@ -15,25 +15,13 @@ function AdminDashboard({ isAuthenticated, logout }) {
     useEffect(() => {
         // Validar el rol del usuario
         const role = localStorage.getItem('role');
-        console.log('Rol en localStorage:', role);
+        console.log('Rol:', role);
 
         if (role !== 'Administrador') {
             console.log('No es administrador, redirigiendo...');
             navigate('/');
         } else {
             fetchUsers();
-            // Si es administrador, cargar la lista de usuarios
-        //     const fetchUsers = async () => {
-        //         try {
-        //             const response = await api.get('/api/users/list/');
-        //             setUsers(response.data);
-        //             setLoading(false);
-        //         } catch (error) {
-        //             console.error("Error al obtener la lista de usuarios:", error);
-        //             setLoading(false);
-        //         }
-        //     };
-        //     fetchUsers();
         }
 
     }, [navigate]);
@@ -67,7 +55,6 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
             console.error("Error al cerrar sesión:", error);
         }
     };
-
     const handleDeactivate = async (userId) => {
         try {
             await api.put(`/api/users/up-del-user/${userId}/`, { is_active: false });
@@ -105,6 +92,29 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
             fetchUsers(previousPage);
         }
     };
+
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            const token = localStorage.getItem('token');
+            await api.put(
+                `/api/users/up-del-user/${userId}/`, 
+                { role: newRole }, 
+                {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+            setUsers(users.map(user =>
+                user.id === userId ? { ...user, role: newRole } : user
+            ));
+            alert(`Rol actualizado a ${newRole} exitosamente.`);
+        } catch (error) {
+            console.error("Error al cambiar el rol del usuario:", error);
+            alert("No se pudo actualizar el rol.");
+        }
+    };
+    
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
@@ -117,7 +127,7 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                     <li className="mb-4">
                             <button
                                 className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
-                                
+                                onClick={() => navigate('/user-profile')}
                             >
                                 Perfil
                             </button>
@@ -130,13 +140,13 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                                 Dashboard
                             </button>
                         </li>
-                        <li className="mb-4">
-                            <button
-                                className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
-                            >
-                                Informes y Reportes
-                            </button>
-                        </li>
+                        {/* <li className="mb-4">
+                        <button
+                        className="w-full text-left px-4 py-2 rounded hover:bg-orange-700"
+                         >
+                         Informes y Reportes
+                         </button>
+                        </li> */}
                     </ul>
                 </nav>
             </aside>
@@ -175,7 +185,17 @@ const fetchUsers = async (url = `http://127.0.0.1:8000/api/users/list/?page=${cu
                                         <tr key={user.id} className="hover:bg-gray-50">
                                             <td className="border border-gray-200 px-4 py-2">{user.username}</td>
                                             <td className="border border-gray-200 px-4 py-2">{user.email}</td>
-                                            <td className="border border-gray-200 px-4 py-2">{user.role}</td>
+                                            <td className="border border-gray-200 px-4 py-2">
+                                                <select
+                                                    value={user.role}
+                                                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                                    className="bg-gray-50 border border-gray-300 text-gray-700 py-1 px-3 rounded"
+                                                >
+                                                    <option value="Adoptante">Adoptante</option>
+                                                    <option value="Cuidador">Cuidador</option>
+                                                    <option value="Administrador">Administrador</option>
+                                                </select>
+                                            </td>
                                             <td className="border border-gray-200 px-4 py-2">
                                             {user.role !== "Administrador" ? (
                                                 user.is_active ? (
