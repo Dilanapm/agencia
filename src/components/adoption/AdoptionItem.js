@@ -10,9 +10,6 @@ function AdoptionItem({ image, name, description }) {
     };
 
     const handleAdoptClick = () => {
-<<<<<<< HEAD
-        window.open("https://forms.gle/AcpRe77cbHsrz5EF8", "_blank"); // Abre el formulario en una nueva pestaña
-=======
         if (isTokenValid()) {
             // Si el token existe, redirige al formulario de adopción
             window.location.href = "https://forms.gle/AcpRe77cbHsrz5EF8";
@@ -24,7 +21,6 @@ function AdoptionItem({ image, name, description }) {
                 }
             });
         }
->>>>>>> origin/main
     };
 
     return (
