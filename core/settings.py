@@ -34,6 +34,7 @@ PROJECT_APPS = [
     'apps.categoria',
     'apps.mascotas',
     'apps.users',
+    'apps.curiosities',
 ]
 
 THIRD_PARTY_APPS = [
@@ -208,3 +209,4 @@ EMAIL_PORT = env.int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+
