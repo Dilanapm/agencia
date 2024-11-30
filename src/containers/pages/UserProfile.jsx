@@ -89,9 +89,11 @@ function UserProfile() {
         const role = localStorage.getItem('role');
         if (role === 'Administrador') {
             navigate('/admin-dashboard');
-        } else {
+        }else if(role === 'Cuidador') {
+            navigate('/cuidador');
+        }else{
             navigate('/home');
-        }
+        } 
     };
 
     if (loading) {

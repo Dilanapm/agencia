@@ -10,8 +10,8 @@ def is_valid_password(password,re_password):
     """
     if password != re_password:
         return False, "Las contraseñas no coinciden"
-    if len(password) < 10:
-        return False, "La contraseña debe tener al menos 10 caracteres."
+    if len(password) < 8:
+        return False, "La contraseña debe tener al menos 8 caracteres."
     if not re.search(r'[A-Z]', password):  # Al menos una letra mayúscula
         return False, "La contraseña debe incluir al menos una letra mayúscula."
     if not re.search(r'\d', password):  # Al menos un número
