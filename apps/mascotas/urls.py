@@ -9,4 +9,4 @@ urlpatterns = [
     path('crear/', MascotaCrearVista.as_view(), name='mascota-crear'), 
     path('categorias/', CategoriaPredefinidaVista.as_view(), name='categorias'),
     path('actualizar/<int:pk>/', MascotaActualizarVista.as_view(), name='mascota-actualizar'),
-]
+] 
