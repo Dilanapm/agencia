@@ -35,6 +35,7 @@ PROJECT_APPS = [
     'apps.mascotas',
     'apps.users',
     'apps.curiosities',
+    'apps.adopcion',
 ]
 
 THIRD_PARTY_APPS = [
