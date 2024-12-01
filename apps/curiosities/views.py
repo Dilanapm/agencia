@@ -36,9 +36,12 @@ class CuriosityList(APIView):
         return Response(serializer.data)
 
 class TipList(APIView):
+    permission_classes = [AllowAny]  # Permitir acceso a cualquiera
+
     def get(self, request):
         tips = Tip.objects.all()
         serializer = TipSerializer(tips, many=True)
         return Response(serializer.data)
+
 
 
