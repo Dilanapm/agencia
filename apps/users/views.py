@@ -179,6 +179,7 @@ class UserPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 50
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Solo usuarios autenticados
 def list_users(request):
