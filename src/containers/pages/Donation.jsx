@@ -147,7 +147,7 @@ function Donation() {
                                 onClick={() => setPaymentMethod("card")}
                                 className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "card" ? "bg-blue-600" : ""}`}
                             >
-                                <i className="fa fa-lock"></i> Pagar con Tarjeta
+                                <i className="fa fa-lock"></i>  Pago con Tarjeta
                             </button>
                             <button
                                 type="button"
