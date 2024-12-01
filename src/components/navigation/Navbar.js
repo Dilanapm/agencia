@@ -94,7 +94,7 @@ function Navbar({ isAuthenticated, logout }) {
 }
 
 const mapStateToProps = (state) => ({
-    isAuthenticated: state.auth.isAuthenticated,
+  isAuthenticated: state.auth.isAuthenticated || !!localStorage.getItem('token'),
 });
 
 export default connect(mapStateToProps, { logout })(Navbar);
