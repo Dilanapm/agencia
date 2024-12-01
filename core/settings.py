@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import environ
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,7 +18,7 @@ SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS_DEV', default=['localhost'])
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -46,6 +47,7 @@ THIRD_PARTY_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
+
 
 CKEDITOR_CONFIGS = {
     "default": {
@@ -170,16 +172,24 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated', # solo los usuarios autenticados podran acceder a las vistas de la api
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES':[
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ),
 }
-# Configuración CORS
-CORS_ALLOWED_ORIGINS = env.list('CORS_ORIGIN_WHITELIST_DEV', default=[])
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 
-# Configuración CSRF
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS_DEV', default=[])
+CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "X-CSRFToken",
+]
 # Configuración API React
 REACT_APP_API_URL = env('REACT_APP_API_URL', default='http://127.0.0.1:8000')
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
