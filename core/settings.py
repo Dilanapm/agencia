@@ -173,7 +173,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', # solo los usuarios autenticados podran acceder a las vistas de la api
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 CORS_ALLOWED_ORIGINS = [

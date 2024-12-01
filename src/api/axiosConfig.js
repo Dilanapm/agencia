@@ -12,7 +12,7 @@ api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token'); // Recupera el token desde localStorage
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`; // Cambiar a Bearer
+            config.headers.Authorization = `token ${token}`; // Cambiar a Bearer
         }
         return config;
     },
