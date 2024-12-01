@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import permissions
 
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
 import re # maneja expresiones regulares
 from apps.users.utils.validators import is_valid_password, validate_gmail_email
 from django.contrib.auth import logout
@@ -78,7 +78,8 @@ class RegisterUserView(generics.CreateAPIView):
          # Validar que el nombre de usuario no tenga espacios internos
         if ' ' in username:
             errors["username"] = ["El nombre de usuario no debe contener espacios."]
-        
+        if len(username) < 7:
+            errors["username"] = ["El nombre de usuario debe contener por lo menos 7 letras."]
 
         is_valid, message = is_valid_password(password,re_password)
         if not is_valid:
@@ -177,6 +178,7 @@ class UserPagination(PageNumberPagination):
     page_size = 10  # Número de usuarios por página
     page_size_query_param = 'page_size'
     max_page_size = 50
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Solo usuarios autenticados
@@ -371,7 +373,8 @@ class PasswordResetRequestView(APIView):
             return Response({"message": "Se ha enviado un correo con las instrucciones para resetear tu contraseña."}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "No se encontró una cuenta con este correo."}, status=status.HTTP_404_NOT_FOUND)
-        
+
+ 
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
@@ -381,17 +384,24 @@ class PasswordResetConfirmView(APIView):
         new_password = request.data.get('new_password')
         re_password = request.data.get('re_password')
 
-        if new_password != re_password:
-            return Response({"error": "Las contraseñas no coinciden."}, status=status.HTTP_400_BAD_REQUEST)
+        # Validar contraseñas utilizando `is_valid_password`
+        is_valid, message = is_valid_password(new_password, re_password)
+        if not is_valid:
+            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            # Verificar si el usuario existe
             user = User.objects.get(email=email)
             token_generator = PasswordResetTokenGenerator()
+
+            # Validar el token
             if not token_generator.check_token(user, token):
                 return Response({"error": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Actualizar la contraseña
             user.set_password(new_password)
             user.save()
             return Response({"message": "Contraseña actualizada con éxito."}, status=status.HTTP_200_OK)
+
         except User.DoesNotExist:
             return Response({"error": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)

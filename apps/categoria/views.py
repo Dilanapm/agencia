@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from  rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
+
 from .models import Categoria
 
 # Create your views here.
@@ -39,3 +40,6 @@ class ListCategoriasVista(APIView):
             return Response({'categoria':result}, status=status.HTTP_200_OK)
         else:
             return Response({'error':'no se encontro categorias'}, status=status.HTTP_404_NOT_FOUND)
+
+
+

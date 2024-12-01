@@ -1,13 +1,9 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "components/navigation/Footer";
 import Navbar from "components/navigation/Navbar";
 import Layout from "hocs/layouts/Layout";
 import AdoptionItem from "components/adoption/AdoptionItem";
-
-// Importa las imágenes
-import Mascota1Image from "assets/adoption/mascota1.jpg";
-import Mascota2Image from "assets/adoption/mascota2.jpg";
-import Mascota3Image from "assets/adoption/mascota3.jpg";
+import api from "api/axiosConfig"; // Importa la configuración de Axios
 
 // Componente para el cuestionario
 function Questionnaire({ onCancel }) {
@@ -157,49 +153,57 @@ function Questionnaire({ onCancel }) {
 }
 
 function Adoption() {
-    const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+    // Estados para mascotas, carga y error
+    const [mascotas, setMascotas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Llama a la API al montar el componente
+    useEffect(() => {
+        const fetchMascotas = async () => {
+            try {
+                const response = await api.get("/api/mascotas/lista/");
+                setMascotas(response.data.mascotas || []);
+            } catch (err) {
+                console.error("Error al cargar mascotas:", err);
+                setError("No se pudieron cargar las mascotas. Intenta nuevamente más tarde.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMascotas();
+    }, []);
 
     return (
         <Layout>
             <Navbar />
             <div className="pt-36 container mx-auto px-4 mb-5">
-                <h1 className="text-5xl font-bold text-center text-gray-800 mb-8">Adopción de Mascotas</h1>
-                <p className="text-center text-gray-600 mb-4 max-w-2xl mx-auto">
-                    Ayúdanos a darles una segunda oportunidad a estos adorables amigos peludos. ¡Haz clic en "Adoptar" para darle un hogar!
+                <h1 className="text-5xl font-bold text-center text-gray-800 mb-8">
+                    Adopción de Mascotas
+                </h1>
+                <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                    Ayúdanos a darles una segunda oportunidad a estos adorables amigos peludos.
+                    ¡Haz clic en "Adoptar" para darle un hogar!
                 </p>
-
-                {/* Barra de recomendaciones */}
-                <div className="bg-red-100 p-4 text-center rounded-md mb-8">
-                    <p className="text-gray-800 font-semibold mb-2">
-                        No sabes a cuál elegir? Presiona este botón para tener recomendaciones c:
-                    </p>
-                    <button
-                        onClick={() => setShowQuestionnaire(true)}
-                        className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600"
-                    >
-                        Recomendaciones
-                    </button>
-                </div>
-
-                {showQuestionnaire ? (
-                    <Questionnaire onCancel={() => setShowQuestionnaire(false)} />
+                {/* Manejando el estado de carga, error y datos */}
+                {loading ? (
+                    <p className="text-center text-gray-500">Cargando mascotas...</p>
+                ) : error ? (
+                    <p className="text-center text-red-500">{error}</p>
+                ) : mascotas.length === 0 ? (
+                    <p className="text-center text-gray-500">No hay mascotas disponibles para adopción.</p>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        <AdoptionItem
-                            image={Mascota1Image}
-                            name="Canelo"
-                            description="Un perrito cariñoso y fiel, perfecto para cualquier familia."
-                        />
-                        <AdoptionItem
-                            image={Mascota2Image}
-                            name="Luna"
-                            description="Es juguetona y le encanta correr al aire libre."
-                        />
-                        <AdoptionItem
-                            image={Mascota3Image}
-                            name="Rocky"
-                            description="Un guardián fiel y amigable que ama la compañía."
-                        />
+                        {mascotas.map((mascota) => (
+                            <AdoptionItem
+                                key={mascota.id}
+                                image={mascota.foto || "/default-image.jpg"}
+                                name={mascota.nombre}
+                                description={mascota.descripcion}
+                                disponible={mascota.disponible} // Pasamos la disponibilidad
+                            />
+                        ))}
                     </div>
                 )}
             </div>

@@ -28,7 +28,7 @@ const LoginForm = ({ login, isAuthenticated, role }) => {
     // Redirección basada en el rol y autenticación
     if (isAuthenticated) {
         if (role === 'Administrador') navigate('/admin-dashboard');
-        else if (role === 'Cuidador') navigate('/cuidador/dashboard');
+        else if (role === 'Cuidador') navigate('/cuidador');
         else if (role === 'Adoptante') navigate('/');
         else navigate('*');
     }
@@ -87,7 +87,11 @@ const LoginForm = ({ login, isAuthenticated, role }) => {
                     Iniciar Sesión
                 </button>
                 </div>
-                
+                <p className="text-center text-black mt-4">
+                <a href="/pass-forget" className="text-blue-800 hover:underline">
+                ¿Se te olvido la contraseña?
+                </a>
+        </p>
             </form>
         </div>
     );

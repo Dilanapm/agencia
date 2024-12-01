@@ -26,7 +26,17 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { username, email, password, re_password, full_name, phone, role} = formData;
 
-  const onchange = e => setFormData({...formData, [e.target.name]: e.target.value})
+  const onchange = (e) => {
+    const { name, value } = e.target;
+
+    // Lógica específica para el campo phone
+    if (name === 'phone') {
+      const sanitizedValue = value.replace(/\D/g, ''); // Remueve cualquier caracter que no sea número
+      setFormData({ ...formData, [name]: sanitizedValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const onSubmit = async(e) => {
@@ -93,7 +103,7 @@ const RegisterForm = () => {
         {message && <p className="text-red-600 text-center font-semibold">{message}</p>}
         {/* Campo Nombre de Usuario */}
         <div className="mb-4">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="username" className="block text-sm font-bold text-gray-700 mb-1">
               Nombre de Usuario
           </label>
           <input
@@ -113,7 +123,7 @@ const RegisterForm = () => {
 
         {/* Campo Email */}
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+          <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-1">Correo Electrónico</label>
           <input
             type="email"
             id="email"
@@ -133,7 +143,7 @@ const RegisterForm = () => {
 
         {/* Campo Contraseña */}
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          <label htmlFor="password" className="block text-sm font-bold text-gray-700 mb-1">Contraseña</label>
           <input
             type={showPassword ? 'text' : 'password'}
             id="password"
@@ -151,7 +161,7 @@ const RegisterForm = () => {
 
         {/* Campo Confirmar Contraseña */}
         <div className="mb-4">
-          <label htmlFor="re_password" className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+          <label htmlFor="re_password" className="block text-sm font-bold text-gray-700 mb-1">Confirmar Contraseña</label>
           <input
             type={showPassword ? 'text' : 'password'}
             id="re_password"
@@ -175,7 +185,7 @@ const RegisterForm = () => {
 
         {/* Campo Nombre Completo */}
         <div className="mb-4">
-          <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+          <label htmlFor="full_name" className="block text-sm font-bold text-gray-700 mb-1">Nombre Completo</label>
           <input
             type="text"
             id="full_name"
@@ -191,7 +201,7 @@ const RegisterForm = () => {
 
         {/* Campo Teléfono */}
         <div className="mb-4">
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+          <label htmlFor="phone" className="block text-sm font-bold text-gray-700 mb-1">Teléfono</label>
           <input
             type="text"
             id="phone"
