@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import AdopcionCreateAPIView
 
 urlpatterns = [
-    path('formulario/', views.formulario_adopcion, name='formulario'),
+    path('crear/', AdopcionCreateAPIView.as_view(), name='crear-adopcion'),
 ]

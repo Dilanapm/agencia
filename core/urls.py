@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/curiosities/', include('apps.curiosities.urls')),
 
     path('api/adopcion/', include('apps.adopcion.urls')),
+
     # Rutas de administracion
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

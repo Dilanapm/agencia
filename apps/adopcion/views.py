@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
-from .forms import FormularioAdopcionForm
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Adopcion
+from .serializers import AdopcionSerializer
 
-def formulario_adopcion(request):
-    if request.method == 'POST':
-        form = FormularioAdopcionForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('gracias')
-    else:
-        form = FormularioAdopcionForm()
-    return render(request, 'adopcion/formulario.html', {'form': form})
+class AdopcionCreateAPIView(APIView):
+    def post(self, request):
+        serializer = AdopcionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

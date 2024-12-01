@@ -2,6 +2,8 @@ import Footer from "components/navigation/Footer";
 import Navbar from "components/navigation/Navbar";
 import Layout from "hocs/layouts/Layout";
 import AdoptionItem from "components/adoption/AdoptionItem";
+import { useLocation } from "react-router-dom";
+import AdoptionForm from "components/adoption/AdoptionForm";
 
 // Importa las imágenes
 import Mascota1Image from "assets/adoption/mascota1.jpg";
@@ -9,6 +11,24 @@ import Mascota2Image from "assets/adoption/mascota2.jpg";
 import Mascota3Image from "assets/adoption/mascota3.jpg";
 
 function Adoption() {
+    const location = useLocation();
+    const { selectedPet } = location.state || {}; // Recupera los datos de la mascota seleccionada
+
+    if (selectedPet) {
+        // Si se seleccionó una mascota, muestra el formulario de adopción
+        return (
+            <Layout>
+                <Navbar />
+                <div className="pt-36 container mx-auto px-4 mb-5">
+                    <h1 className="text-5xl font-bold text-center text-gray-800 mb-8">Formulario de Adopción</h1>
+                    <AdoptionForm selectedPet={selectedPet} />
+                </div>
+                <Footer />
+            </Layout>
+        );
+    }
+
+    // Si no se seleccionó una mascota, muestra la lista de mascotas
     return (
         <Layout>
             <Navbar />

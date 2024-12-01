@@ -21,13 +21,12 @@ const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
 function App() {
   return (
-    
     <Provider store={store}>
       <Router>
         <Routes>
           <Route path="*" element={<Error404 />} />
           <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home/>}/>
+          <Route path="/home" element={<Home />} />
           <Route path="/adoptar" element={<Adoption />} />
           <Route
             path="/donacion"
@@ -44,7 +43,8 @@ function App() {
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/curiosities" element={<Curiosities />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/user-profile" element={<UserProfile />} /> 
+          <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/adoption-form" element={<Adoption />} /> {/* NUEVA RUTA AGREGADA */}
         </Routes>
       </Router>
     </Provider>

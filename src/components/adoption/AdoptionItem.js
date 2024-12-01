@@ -11,8 +11,8 @@ function AdoptionItem({ image, name, description }) {
 
     const handleAdoptClick = () => {
         if (isTokenValid()) {
-            // Si el token existe, redirige al formulario de adopción
-            window.location.href = "https://forms.gle/AcpRe77cbHsrz5EF8";
+            // Si el token existe, redirige al formulario de adopción con los datos de la mascota
+            navigate('/adoption-form', { state: { selectedPet: { name, type: "Perro" } } });
         } else {
             // Si no hay token, redirige al usuario a la página de registro con un mensaje
             navigate('/register', {
