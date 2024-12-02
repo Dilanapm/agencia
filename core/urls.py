@@ -15,10 +15,11 @@ urlpatterns = [
     path('api/curiosities/', include('apps.curiosities.urls')),
 
     path('api/adopcion/', include('apps.adopcion.urls')),
-
+    
     # Rutas de administracion
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Redireccion al frontend react
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
+

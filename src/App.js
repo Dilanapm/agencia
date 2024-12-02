@@ -15,8 +15,11 @@ import LoginForm from 'containers/pages/LoginForm';
 import CuidadorDashboard from 'containers/pages/CuidadorDashboard';
 import AdminDashboard from 'containers/pages/AdminDashboard';
 import UserProfile from 'containers/pages/UserProfile';
-
+import ResetPassword from 'containers/pages/ResetPassword';
+import ResetPasswordConfirm from 'containers/pages/ResetPaswordConfirm';
+import AgregarMascota from 'containers/pages/AgregarMascota';
 // Carga la clave pública de Stripe
+import CuidadorLayout from 'components/Cuidador/CuidadorLayout';
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
 function App() {
@@ -37,7 +40,6 @@ function App() {
             }
           />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/cuidador/dashboard" element={<CuidadorDashboard />} />
           <Route path="/contactar" element={<Contact />} />
           <Route path="/Login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
@@ -45,6 +47,15 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/adoption-form" element={<Adoption />} /> {/* NUEVA RUTA AGREGADA */}
+          <Route path="/pass-forget" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPasswordConfirm />} />
+
+          {/* Rutas específicas para el cuidador */}
+          <Route path="/cuidador" element={<CuidadorLayout />}>
+            {/* Rutas anidadas relativas */}
+            <Route index element={<CuidadorDashboard />} /> {/* Ruta predeterminada */}
+            <Route path="registrar-mascota" element={<AgregarMascota />} />
+          </Route>
         </Routes>
       </Router>
     </Provider>

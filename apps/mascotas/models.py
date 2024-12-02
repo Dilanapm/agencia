@@ -20,7 +20,7 @@ class Mascotas(models.Model):
     vistas =            models.IntegerField(default=0, blank=True)
     publicacion =       models.DateTimeField(default=timezone.now)
     registro_veterinario = models.FileField(upload_to=registro_veterinario_directorio, blank=True, null=True)
-    categoria =         models.ForeignKey(Categoria, on_delete=models.PROTECT)
+    categoria =         models.ForeignKey(Categoria, on_delete=models.PROTECT) # caracter del perro: tranquilos, juguetones, serios 
 
     class Meta:
         ordering = ('publicacion',)
