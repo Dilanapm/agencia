@@ -116,7 +116,7 @@ function Curiosities() {
             <p className="text-lg mb-4">{selectedCuriosity.description}</p>
 
             <div className="comments-section mt-8">
-              <h3 className="text-2xl font-semibold mb-4">Comentarios</h3>
+              <h3 className="text-2xl font-semibold mb-4"></h3>
               <CommentsSection curiosityId={selectedCuriosity.id} />
             </div>
           </div>
