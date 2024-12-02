@@ -20,6 +20,8 @@ import ResetPasswordConfirm from 'containers/pages/ResetPaswordConfirm';
 import AgregarMascota from 'containers/pages/AgregarMascota';
 // Carga la clave pública de Stripe
 import CuidadorLayout from 'components/Cuidador/CuidadorLayout';
+import MascotaProfile from 'containers/pages/MascotaProfile';
+
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
 function App() {
@@ -52,9 +54,14 @@ function App() {
 
           {/* Rutas específicas para el cuidador */}
           <Route path="/cuidador" element={<CuidadorLayout />}>
-            {/* Rutas anidadas relativas */}
-            <Route index element={<CuidadorDashboard />} /> {/* Ruta predeterminada */}
-            <Route path="registrar-mascota" element={<AgregarMascota />} />
+              {/* Ruta predeterminada: Dashboard */}
+              <Route index element={<CuidadorDashboard />} /> 
+
+              {/* Ruta para registrar nueva mascota */}
+              <Route path="registrar-mascota" element={<AgregarMascota />} /> 
+
+              {/* Ruta para el perfil de mascota */}
+              <Route path="mascota/detalle/:id" element={<MascotaProfile />} /> 
           </Route>
         </Routes>
       </Router>

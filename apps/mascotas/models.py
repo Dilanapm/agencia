@@ -4,10 +4,10 @@ from ckeditor.fields import RichTextField
 from apps.categoria.models import Categoria
 
 def mascota_foto_directorio(instance, filename):
-    return 'mascotas/{0}/{1}'.format(instance.nombre,filename)
+    return 'mascotas/{0}/{1}'.format(instance.slug,filename)
 
 def registro_veterinario_directorio(instance, filename):
-    return 'mascotas/{0}/registros_veterinarios/{1}'.format(instance.nombre, filename)
+    return 'mascotas/{0}/registros_veterinarios/{1}'.format(instance.slug, filename)
 # Create your models here.
 class Mascotas(models.Model):
     nombre =            models.CharField(max_length=200)

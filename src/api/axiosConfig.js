@@ -14,6 +14,10 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `token ${token}`; // Cambiar a Bearer
         }
+        // Solo establece Content-Type si no está definido
+        if (!config.headers['Content-Type']) {
+            config.headers['Content-Type'] = 'application/json';
+        }
         return config;
     },
     (error) => {
