@@ -75,6 +75,13 @@ class MascotaSerializerCrear(serializers.ModelSerializer):
         return Mascotas.objects.create(categoria=categoria, **validated_data)
     
     def update(self, instance, validated_data):
+        # Actualizar el slug automáticamente si el nombre cambia
+        if 'nombre' in validated_data:
+            new_nombre = validated_data['nombre']
+            if instance.nombre != new_nombre:
+                validated_data['slug'] = new_nombre.strip().lower().replace(" ", "-")
+
+        # Manejar la categoría si se incluye
         categoria_id = validated_data.pop('categoria', None)
         if categoria_id:
             try:
@@ -82,6 +89,7 @@ class MascotaSerializerCrear(serializers.ModelSerializer):
             except Categoria.DoesNotExist:
                 raise serializers.ValidationError({"categoria": "Categoría no válida."})
 
+        # Actualizar los campos restantes
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 

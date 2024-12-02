@@ -11,14 +11,14 @@ from apps.categoria.models import Categoria
 
 from .serializer import MascotaSerializer, MascotaListaSerializer, MascotaSerializerCrear
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from rest_framework.generics import RetrieveUpdateAPIView
 
 class MascotaActualizarVista(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    parser_classes = [MultiPartParser, FormParser]  # Asegúrate de aceptar multipart/form-data
     def put(self, request, pk, format=None):
         user = request.user
-
+        
         # Verificar si el usuario tiene el rol Cuidador
         if user.role != 'Cuidador':
             return Response(
@@ -34,6 +34,7 @@ class MascotaActualizarVista(APIView):
                 {"error": "Mascota no encontrada."},
                 status=status.HTTP_404_NOT_FOUND
             )
+
 
         # Actualizar la información de la mascota
         serializer = MascotaSerializerCrear(mascota, data=request.data, partial=True)
@@ -84,3 +85,15 @@ class CategoriaPredefinidaVista(APIView):
         categorias  = Categoria.objects.all()
         serializer = CategoriaSerializer(categorias, many=True)
         return Response({'categorias': serializer.data}, status=status.HTTP_200_OK)
+
+
+class DetalleMascotaView(RetrieveUpdateAPIView):
+    queryset = Mascotas.objects.all()
+    serializer_class = MascotaSerializerCrear
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'Cuidador':
+            return self.queryset  # Cuidadores pueden acceder a todas las mascotas
+        return self.queryset.none()  # Otros roles no pueden acceder
