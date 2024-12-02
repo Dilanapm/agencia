@@ -3,8 +3,6 @@ import Footer from "components/navigation/Footer";
 import Navbar from "components/navigation/Navbar";
 import Layout from "hocs/layouts/Layout";
 import AdoptionItem from "components/adoption/AdoptionItem";
-import { useLocation } from "react-router-dom";
-import AdoptionForm from "components/adoption/AdoptionForm";
 import api from "api/axiosConfig"; // Importa la configuración de Axios
 
 // Componente para el cuestionario
