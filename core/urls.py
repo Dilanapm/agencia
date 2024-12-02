@@ -12,6 +12,7 @@ urlpatterns = [
     
     # Rutas de ckeditor (editor de texto enriquecido)
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('api/curiosities/', include('apps.curiosities.urls')),  # Ruta para la API
 
     # Rutas de administracion
     path('admin/', admin.site.urls),
@@ -19,3 +20,4 @@ urlpatterns = [
 
 # Redireccion al frontend react
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))]
+

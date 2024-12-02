@@ -6,6 +6,7 @@ import Layout from "hocs/layouts/Layout";
 
 function Home() {
   return (
+    
     <Layout>
       <Navbar />
       <div className="pt-20">

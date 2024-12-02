@@ -1,20 +1,36 @@
-import { connect } from "react-redux";
 import { NavLink, Link } from "react-router-dom";
 import logo_huella from 'assets/img/logo_vital.png';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import menu_desp from "assets/img/menu.png";
+import { connect } from "react-redux";
+import { logout } from "redux/actions/auth"; // Importa la acción de logout
 
-function Navbar() {
-    const [loading, setLoading] = useState(true);
+function Navbar({ isAuthenticated, logout }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-    const navigate = useNavigate();
+
+    const handleLogoutClick = async () => {
+        try {
+            await logout(); // Llama a la acción de Redux para cerrar sesión
+            navigate('/'); // Redirige al usuario a la página principal
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        }
+    };
+
+    const handleRegisterClick = () => {
+        navigate('/register'); // Redirige a la página de registro
+    };
+    console.log("isAuthenticated en Navbar:", isAuthenticated);
+
     return (
-        <header className= "bg-red-400 ">
+        
+        <header className="bg-red-400">
             <nav className="flex justify-between items-center w-[92%] mx-auto py-4">
                 {/* Logo */}
                 <div>
@@ -37,14 +53,33 @@ function Navbar() {
                         <NavLink to='/contactar' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Contactanos</NavLink>
                     </ul>
                 </div>
+                
                 {/* Sign in button and menu icon */}
                 <div className="flex items-center gap-6">
-                    <button className="bg-orange-button text-white px-5 py-2 rounded-full hover:bg-[#87acec]"
-                    onClick={() => navigate('/register')}
-                    >
-                        Iniciar Sesión
-                        
-                    </button>
+                    {isAuthenticated ? (
+                        <>
+                        {/* Icono de usuario */}
+                        <img
+                            src={require('assets/usuario.png')}
+                            alt="Usuario"
+                            className="w-8 h-8 cursor-pointer rounded-full"
+                            onClick={() => navigate('/user-profile')}
+                        />
+                        <button
+                            onClick={handleLogoutClick}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                            Cerrar Sesión
+                        </button>
+                    </>     
+                    ) : (
+                        <button
+                            onClick={handleRegisterClick}
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
+                        >
+                            Acceder
+                        </button>
+                    )}
                     {/* Menu icon for small screens */}
                     <img
                         src={menu_desp}
@@ -58,6 +93,8 @@ function Navbar() {
     );
 }
 
-const mapStateToProp = (state) => ({});
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated || !!localStorage.getItem('token'),
+});
 
-export default connect(mapStateToProp, {})(Navbar);
+export default connect(mapStateToProps, { logout })(Navbar);
