@@ -21,10 +21,10 @@ function Curiosities() {
     const fetchData = async () => {
       try {
         const curiositiesResponse = await axios.get(
-          "http://127.0.0.1:8000/api/curiosities-list/"
+          "http://127.0.0.1:8000/api/curiosities/curiosities-list/"
         );
         const tipsResponse = await axios.get(
-          "http://127.0.0.1:8000/api/tips/"
+          "http://127.0.0.1:8000/api/curiosities/tips/"
         );
         setCuriosities(curiositiesResponse.data);
         setTips(tipsResponse.data);
@@ -53,7 +53,7 @@ function Curiosities() {
       const fetchComments = async () => {
         try {
           const response = await axios.get(
-            `http://127.0.0.1:8000/api/curiosities-comments/${selectedCuriosity.id}/comments/`
+            `http://127.0.0.1:8000/api/curiosities/curiosities-comments/${selectedCuriosity.id}/comments/`
           );
           setComments(response.data);
         } catch (error) {
@@ -73,7 +73,7 @@ function Curiosities() {
     if (newComment.trim()) {
       try {
         const response = await axios.post(
-          `http://127.0.0.1:8000/api/curiosities-comments/${selectedCuriosity.id}/comments/`,
+          `http://127.0.0.1:8000/api/curiosities/curiosities-comments/${selectedCuriosity.id}/comments/`,
           { content: newComment },
           {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

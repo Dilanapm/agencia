@@ -12,7 +12,7 @@ urlpatterns = [
     
     # Rutas de ckeditor (editor de texto enriquecido)
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('api/', include('apps.curiosities.urls')),  # Ruta para la API
+    path('api/curiosities/', include('apps.curiosities.urls')),  # Ruta para la API
 
     # Rutas de administracion
     path('admin/', admin.site.urls),
