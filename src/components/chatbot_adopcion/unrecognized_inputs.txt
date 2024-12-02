@@ -1,0 +1,3 @@
+def log_unrecognized_input(input_text):
+    with open("unrecognized_inputs.txt", "a", encoding="utf-8") as file:
+        file.write(input_text + "\n")

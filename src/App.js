@@ -48,6 +48,7 @@ function App() {
           <Route path="/curiosities" element={<Curiosities />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/adoption-form" element={<Adoption />} /> {/* NUEVA RUTA AGREGADA */}
           <Route path="/pass-forget" element={<ResetPassword />} />
           <Route path="/reset-password" element={<ResetPasswordConfirm />} />
 

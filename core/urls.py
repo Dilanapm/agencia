@@ -12,8 +12,10 @@ urlpatterns = [
     
     # Rutas de ckeditor (editor de texto enriquecido)
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('api/curiosities/', include('apps.curiosities.urls')),  # Ruta para la API
+    path('api/curiosities/', include('apps.curiosities.urls')),
 
+    path('api/adopcion/', include('apps.adopcion.urls')),
+    
     # Rutas de administracion
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,39 @@
+{
+    "intents": [
+      {
+        "tag": "adopcion",
+        "patterns": [
+          "¿Cómo adopto una mascota?",
+          "¿Cuáles son los requisitos?",
+          "Proceso de adopción"
+        ],
+        "responses": [
+          "El proceso es sencillo: llena el formulario en la sección de adopción.",
+          "Puedes ver los requisitos en nuestra página de adopción."
+        ]
+      },
+      {
+        "tag": "cuidado",
+        "patterns": [
+          "¿Qué cuidados necesitan?",
+          "¿Qué comen las mascotas?",
+          "Cuidados básicos"
+        ],
+        "responses": [
+          "Ofrecemos guías de cuidado específicas. Revisa la sección de consejos."
+        ]
+      },
+      {
+        "tag": "contacto",
+        "patterns": [
+          "¿Cómo puedo contactarlos?",
+          "¿Tienen un teléfono?",
+          "¿Puedo enviar un correo?"
+        ],
+        "responses": [
+          "Puedes contactarnos al email info@adopcion.com o al teléfono 123-456-7890."
+        ]
+      }
+    ]
+  }
+  
