@@ -2,20 +2,17 @@ import React, { useState, useEffect } from "react";
 import Footer from "components/navigation/Footer";
 import Navbar from "components/navigation/Navbar";
 import Layout from "hocs/layouts/Layout";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
+import CommentsSection from "components/adoption/CommentsSection";
 
 function Curiosities() {
   const [curiosities, setCuriosities] = useState([]);
   const [tips, setTips] = useState([]);
   const [selectedCuriosity, setSelectedCuriosity] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState("");
   const [viewTips, setViewTips] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Verifica si el usuario está autenticado
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,56 +32,12 @@ function Curiosities() {
       }
     };
 
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/auth-check/");
-        setIsAuthenticated(response.data.isAuthenticated);
-      } catch (error) {
-        console.error("Error al verificar autenticación:", error);
-      }
-    };
-
     fetchData();
-    checkAuth();
   }, []);
-
-  useEffect(() => {
-    if (selectedCuriosity) {
-      const fetchComments = async () => {
-        try {
-          const response = await axios.get(
-            `http://127.0.0.1:8000/api/curiosities/curiosities-comments/${selectedCuriosity.id}/comments/`
-          );
-          setComments(response.data);
-        } catch (error) {
-          console.error("Error al cargar los comentarios:", error);
-        }
-      };
-      fetchComments();
-    }
-  }, [selectedCuriosity]);
 
   const handleCuriosityClick = (curiosity) => {
     setSelectedCuriosity(curiosity);
     setViewTips(false);
-  };
-
-  const handleCommentSubmit = async () => {
-    if (newComment.trim()) {
-      try {
-        const response = await axios.post(
-          `http://127.0.0.1:8000/api/curiosities/curiosities-comments/${selectedCuriosity.id}/comments/`,
-          { content: newComment },
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }
-        );
-        setComments([...comments, response.data]); // Agregar el nuevo comentario a la lista
-        setNewComment("");
-      } catch (error) {
-        console.error("Error al enviar el comentario:", error);
-      }
-    }
   };
 
   if (loading) return <p>Cargando...</p>;
@@ -163,36 +116,8 @@ function Curiosities() {
             <p className="text-lg mb-4">{selectedCuriosity.description}</p>
 
             <div className="comments-section mt-8">
-              <h3 className="text-2xl font-semibold mb-4">Comentarios</h3>
-              {comments.map((comment) => (
-                <div key={comment.id} className="bg-gray-100 p-2 rounded mb-2">
-                  <p>
-                    <strong>{comment.user}:</strong> {comment.content}
-                  </p>
-                </div>
-              ))}
-
-              {isAuthenticated ? (
-                <div>
-                  <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Escribe un comentario..."
-                    rows="3"
-                    className="w-full border p-2 rounded mb-4"
-                  ></textarea>
-                  <button
-                    onClick={handleCommentSubmit}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-                  >
-                    Publicar Comentario
-                  </button>
-                </div>
-              ) : (
-                <p className="text-red-500">
-                  Debes iniciar sesión para publicar comentarios.
-                </p>
-              )}
+              <h3 className="text-2xl font-semibold mb-4"></h3>
+              <CommentsSection curiosityId={selectedCuriosity.id} />
             </div>
           </div>
         ) : viewTips ? (

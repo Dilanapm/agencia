@@ -13,20 +13,38 @@ class CuriosityComments(APIView):
     permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden comentar
     http_method_names = ['get', 'post']  # Permitir solo GET y POST
 
-    def get(self, request, id):
-        comments = Comment.objects.filter(curiosity_id=id)
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
-
+    BAD_WORDS = ["mala", "palabra1", "insulto", "niggas", "nigga"]  # Lista de palabras prohibidas
+    
+    def contains_bad_words(self, content):
+        """
+        Verifica si el contenido contiene palabras prohibidas.
+        """
+        for bad_word in self.BAD_WORDS:
+            if bad_word in content.lower():
+                return True
+        return False
+    
     def post(self, request, id):
         print(f"Debug: Se recibió un POST para la curiosidad {id}")
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
+            content = serializer.validated_data.get("content", "")
+            if self.contains_bad_words(content):
+                print("Debug: Comentario contiene malas palabras.")
+                return Response(
+                    {"error": "Tu comentario contiene palabras no permitidas."},
+                    status=400,
+                )
             serializer.save(curiosity_id=id, user=request.user)
             print("Debug: Comentario guardado exitosamente")
             return Response(serializer.data, status=201)
         print("Debug: Errores de validación", serializer.errors)
         return Response(serializer.errors, status=400)
+    
+    def get(self, request, id):
+        comments = Comment.objects.filter(curiosity_id=id)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
     
 class CuriosityList(APIView):
     permission_classes=[AllowAny]
