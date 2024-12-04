@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -155,7 +156,10 @@ class LoginUserView(APIView):
                     {'error': 'El usuario no existe.'}, status=status.HTTP_400_BAD_REQUEST
                 )
         
-
+        # Actualizar manualmente el campo last_login
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
+        
         # Obtener o crear el token
         try:
             token, created = Token.objects.get_or_create(user=user)
