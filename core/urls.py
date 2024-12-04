@@ -15,6 +15,8 @@ urlpatterns = [
     path('api/curiosities/', include('apps.curiosities.urls')),
 
     path('api/adopcion/', include('apps.adopcion.urls')),
+    # Rutas para notificaciones
+    path('api/notifications/', include('apps.notificacion.urls')),
     
     # Rutas de administracion
     path('admin/', admin.site.urls),
