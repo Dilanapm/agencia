@@ -1,42 +1,41 @@
 const express = require('express');
-const stripe = require('stripe')('sk_test_51QMhK1BxZqvldvODzZEHKveeFiDrE5G89o11eqEIOaBqK16Rjo4mYedVZZKVG71RJsrYL39cnPtOyboInpdUWykY00Xk1dPgz1');
 const cors = require('cors');
 
 const app = express();
 
-// Middleware para parsear JSON en el cuerpo de las solicitudes
-app.use(express.json());  // Asegúrate de agregar este middleware
+// Middleware para manejar datos JSON
+app.use(express.json());
+app.use(cors({ origin: '*' }));
 
-app.use(cors({ origin: '*' })); // Permite solicitudes desde cualquier origen
+// Base de datos simulada (usuarios registrados)
+const users = [
+    { username: 'DerixV', password: 'password123' },
+    { username: 'testUser', password: 'testPass' },
+];
 
-// Ruta para crear un PaymentIntent
-app.post('/create-payment-intent', async (req, res) => {
-    const { amount } = req.body; // Recibir el monto enviado por el cliente
-    console.log("Monto recibido:", amount);  // Agrega un log para asegurarte que el monto llega bien
+// Ruta de inicio de sesión
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
 
-    if (!amount) {
-        return res.status(400).send({ error: 'Amount is required' });
+    // Validar si se enviaron las credenciales
+    if (!username || !password) {
+        return res.status(400).send({ error: 'Faltan credenciales' });
     }
 
-    try {
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount * 100, // Convertir el monto a centavos (Stripe trabaja en centavos)
-            currency: 'usd', // Cambia esto a la moneda que prefieras
-            payment_method_types: ['card'], // Métodos de pago aceptados
-        });
+    // Buscar usuario en la base de datos simulada
+    const user = users.find((u) => u.username === username && u.password === password);
 
-        // Enviar el clientSecret al cliente para completar el pago
-        res.status(200).send({
-            clientSecret: paymentIntent.client_secret,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({ error: error.message });
+    if (user) {
+        // Inicio de sesión exitoso
+        res.status(200).send({ message: 'Inicio de sesión exitoso' });
+    } else {
+        // Error de autenticación
+        res.status(401).send({ error: 'Error de autenticación' });
     }
 });
 
-// Inicia el servidor
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// Iniciar el servidor
+const PORT = 8000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en todas las interfaces en el puerto ${PORT}`);
 });

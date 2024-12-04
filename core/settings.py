@@ -17,7 +17,9 @@ SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS_DEV', default=['localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS_DEV', default=['localhost', '127.0.0.1', '192.168.0.21', '192.168.0.15'])
+
+
 
 # Application definition
 
@@ -77,11 +79,12 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+     "django.middleware.csrf.CsrfViewMiddleware",  # Desactivado temporalmente
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 ROOT_URLCONF = "core.urls"
 
@@ -178,7 +181,8 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = env.list('CORS_ORIGIN_WHITELIST_DEV', default=[])
 
 # Configuración CSRF
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS_DEV', default=[])
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://192.168.0.15:8000', 'http://192.168.0.21:8000']
+
 
 # Configuración API React
 REACT_APP_API_URL = env('REACT_APP_API_URL', default='http://127.0.0.1:8000')
