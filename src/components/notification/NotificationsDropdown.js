@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import bell from "../../assets/notifications/bell.png"
-import notification from "../../assets/notifications/notification.png"; // Con notificaciones nuevas
 import api from "api/axiosConfig";
+import bell from "../../assets/notifications/bell.png";
+import notification from "../../assets/notifications/notification.png"; // Con notificaciones nuevas
 import { useNavigate } from "react-router-dom";
+
 const NotificationsDropdown = () => {
-    
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [filter, setFilter] = useState("all"); // "all" o "unread"
     const [hasUnread, setHasUnread] = useState(false);
     const [userRole, setUserRole] = useState(""); // Almacena el rol del usuario
-    // Toggle dropdown visibility
+
+    // Alternar visibilidad del menú desplegable
     const toggleDropdown = () => setIsOpen(!isOpen);
 
-    // Fetch notifications from the backend
+    // Obtener notificaciones desde el backend
     const fetchNotifications = async () => {
         try {
             // Obtener el rol del usuario
@@ -36,35 +36,50 @@ const NotificationsDropdown = () => {
             const unreadExists = response.data.some((notif) => !notif.is_read);
             setHasUnread(unreadExists);
         } catch (error) {
-            console.error("Error fetching notifications:", error);
+            console.error("Error al obtener notificaciones:", error);
         }
     };
 
-    // Marcar una notificación como leída y redirigir
-    const markAsRead = async (notificationId) => {
-    try {
-        await api.put(`/api/notifications/mark-as-read/${notificationId}/`);
-        // Actualiza el estado local
+    // Actualizar el estado local de las notificaciones
+    const updateNotificationState = (notificationId) => {
         setNotifications((prev) =>
             prev.map((notif) =>
                 notif.id === notificationId ? { ...notif, is_read: true } : notif
             )
         );
         setHasUnread(notifications.some((notif) => !notif.is_read));
-
-        // Redirigir a la página de detalles
-        navigate(`/cuidador/notification-detail/${notificationId}`);
-    } catch (error) {
-        console.error("Error al marcar la notificación como leída:", error);
-    }
     };
 
-    // Load notifications on component mount
+    // Función para marcar una notificación como leída
+    const markAsRead = async (notificationId) => {
+        try {
+            await api.put(`/api/notifications/mark-as-read/${notificationId}/`);
+            updateNotificationState(notificationId);
+        } catch (error) {
+            console.error("Error al marcar la notificación como leída:", error);
+            alert("No se pudo marcar la notificación como leída. Inténtalo nuevamente.");
+        }
+    };
+
+    // Función para redirigir a la página de detalles (solo cuidadores)
+    const navigateToDetail = (notificationId) => {
+        if (userRole === "Cuidador") {
+            navigate(`/cuidador/notification-detail/${notificationId}`);
+        }
+    };
+
+    // Manejar clic en una notificación
+    const handleNotificationClick = async (notificationId) => {
+        await markAsRead(notificationId);
+        navigateToDetail(notificationId);
+    };
+
+    // Cargar notificaciones al montar el componente
     useEffect(() => {
         fetchNotifications();
     }, []);
 
-    // Filter notifications based on "all" or "unread"
+    // Filtrar notificaciones según el estado
     const filteredNotifications =
         filter === "unread"
             ? notifications.filter((notif) => !notif.is_read)
@@ -72,7 +87,7 @@ const NotificationsDropdown = () => {
 
     return (
         <div className="relative">
-            {/* Notification Bell */}
+            {/* Icono de campana */}
             <img
                 src={hasUnread ? notification : bell}
                 alt="Notificaciones"
@@ -80,7 +95,7 @@ const NotificationsDropdown = () => {
                 onClick={toggleDropdown}
             />
 
-            {/* Dropdown */}
+            {/* Menú desplegable */}
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg">
                     <div className="p-4">
@@ -109,7 +124,7 @@ const NotificationsDropdown = () => {
                             >
                                 <div
                                     className="cursor-pointer"
-                                    onClick={() => markAsRead(notif.id)}
+                                    onClick={() => handleNotificationClick(notif.id)}
                                 >
                                     <p className="font-bold">{notif.title}</p>
                                     <p>{notif.message}</p>
