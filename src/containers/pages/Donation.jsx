@@ -141,29 +141,36 @@ function Donation() {
                                 placeholder="Escribe un mensaje para nosotros"
                             />
                         </div>
-                        <div className="flex items-center justify-center mb-6">
+                        <div className="flex flex-wrap justify-center gap-4 mb-6">
                             <button
                                 type="button"
                                 onClick={() => setPaymentMethod("card")}
-                                className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "card" ? "bg-blue-600" : ""}`}
+                                className={`bg-blue-500 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300 ${
+                                    paymentMethod === "card" ? "scale-105" : ""
+                                }`}
                             >
-                                <i className="fa fa-lock"></i>  Pago con Tarjeta
+                                Pago con Tarjeta
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setPaymentMethod("qr")}
-                                className={`bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "qr" ? "bg-green-600" : ""}`}
+                                className={`bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-green-600 transition-all duration-300 ${
+                                    paymentMethod === "qr" ? "scale-105" : ""
+                                }`}
                             >
-                                <i className="fa fa-lock"></i> Pagar con QR
+                                Pagar con QR
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setPaymentMethod("cash")}
-                                className={`bg-yellow-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mx-2 ${paymentMethod === "cash" ? "bg-yellow-600" : ""}`}
+                                className={`bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-yellow-600 transition-all duration-300 ${
+                                    paymentMethod === "cash" ? "scale-105" : ""
+                                }`}
                             >
-                                <i className="fa fa-lock"></i> Donación Física
+                                Donación Física
                             </button>
                         </div>
+
 
                         {paymentMethod === "card" && (
                             <div className="mt-4 transition-opacity duration-500">
@@ -228,10 +235,10 @@ function Donation() {
                     </form>
                 </div>
                 {/* Imagen de los tres perros al costado derecho */}
-    <div className="hidden lg:block w-1/4 text-center">
-        <img src={tresPerrosImage} alt="Tres perros" className="max-w-full h-auto" />
-    </div>
-</div>
+                <div className="hidden lg:block w-1/4 text-center">
+                    <img src={tresPerrosImage} alt="Tres perros" className="max-w-full h-auto" />
+                </div>
+            </div>
 
             {/* Modal de confirmación */}
             {isConfirmOpen && (

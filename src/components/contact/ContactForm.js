@@ -47,7 +47,10 @@ function ContactForm() {
     };
 
     return (
-        <form className="space-y-4 bg-white p-6 rounded-lg shadow-md border border-gray-200" onSubmit={handleSubmit}>
+        <form
+            className="space-y-4 bg-white p-6 rounded-lg shadow-md border border-gray-200 mt-16" // Agrega un margin-top adecuado
+            onSubmit={handleSubmit}
+        >
             <input
                 type="text"
                 name="nombre"
@@ -74,21 +77,22 @@ function ContactForm() {
                 className="border border-gray-300 p-3 w-full rounded-lg focus:ring focus:ring-yellow-300"
                 required
             />
-            <div className="flex items-center justify-around mt-4">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
                 <button
                     type="button"
                     onClick={handleWhatsAppClick}
-                    className="bg-green-500 text-white px-6 py-3 rounded-full hover:bg-green-600 transition font-bold shadow-lg"
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg w-full sm:w-auto"
                 >
                     Contactar por WhatsApp
                 </button>
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition font-bold shadow-lg"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg w-full sm:w-auto"
                 >
                     Enviar por Correo
                 </button>
             </div>
+
             {status && <p className="text-sm text-gray-600 mt-2">{status}</p>}
         </form>
     );

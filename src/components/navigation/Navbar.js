@@ -1,6 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
 import logo_huella from 'assets/img/logo_vital.png';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import menu_desp from "assets/img/menu.png";
 import { connect } from "react-redux";
@@ -26,11 +26,9 @@ function Navbar({ isAuthenticated, logout }) {
     const handleRegisterClick = () => {
         navigate('/register'); // Redirige a la página de registro
     };
-    console.log("isAuthenticated en Navbar:", isAuthenticated);
 
     return (
-        
-        <header className="bg-red-400">
+        <header className="bg-red-400 ">
             <nav className="flex justify-between items-center w-[92%] mx-auto py-4">
                 {/* Logo */}
                 <div>
@@ -41,37 +39,63 @@ function Navbar({ isAuthenticated, logout }) {
 
                 {/* Nav Links */}
                 <div
-                    className={`nav-links duration-500 md:static absolute bg-red-400 md:min-h-fit min-h-[40vh] left-0 ${
-                        isMenuOpen ? "top-[9%]" : "top-[-100%]"
-                    } md:w-auto w-full flex items-center px-5 transition-all ease-in-out`}
-                >
-                    <ul className="flex md:flex-row flex-col md:items-center md:gap-[4vw] gap-8">
-                        <NavLink to='/home' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Inicio</NavLink>
-                        <NavLink to='/adoptar' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Adoptame</NavLink>
-                        <NavLink to='/donacion' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Donar</NavLink>
-                        <NavLink to='/curiosities' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Curiosidades/Tips</NavLink>
-                        <NavLink to='/contactar' className="hover:text-gray-200 text-lg text-gray-900 mx-4">Contactanos</NavLink>
-                    </ul>
-                </div>
-                
+    className={`nav-links duration-500 md:static absolute bg-red-400 md:min-h-fit min-h-[40vh] left-0 ${
+        isMenuOpen ? "top-[10%]" : "top-[-100%]"
+    } md:w-auto w-full flex flex-col items-center justify-center px-5 transition-all ease-in-out`}
+>
+    <ul className="flex flex-col md:flex-row md:items-center md:gap-[2vw] gap-6 text-center">
+        <NavLink
+            to="/home"
+            className="hover:bg-red-500 px-4 py-2 rounded text-lg text-white transition"
+        >
+            Inicio
+        </NavLink>
+        <NavLink
+            to="/adoptar"
+            className="hover:bg-red-500 px-4 py-2 rounded text-lg text-white transition"
+        >
+            Adoptame
+        </NavLink>
+        <NavLink
+            to="/donacion"
+            className="hover:bg-red-500 px-4 py-2 rounded text-lg text-white transition"
+        >
+            Donar
+        </NavLink>
+        <NavLink
+            to="/curiosities"
+            className="hover:bg-red-500 px-4 py-2 rounded text-lg text-white transition"
+        >
+            Curiosidades/Tips
+        </NavLink>
+        <NavLink
+            to="/contact"
+            className="hover:bg-red-500 px-4 py-2 rounded text-lg text-white transition"
+        >
+            Contactanos
+        </NavLink>
+    </ul>
+</div>
+
+
                 {/* Sign in button and menu icon */}
                 <div className="flex items-center gap-6">
                     {isAuthenticated ? (
                         <>
-                        {/* Icono de usuario */}
-                        <img
-                            src={require('assets/usuario.png')}
-                            alt="Usuario"
-                            className="w-8 h-8 cursor-pointer rounded-full"
-                            onClick={() => navigate('/user-profile')}
-                        />
-                        <button
-                            onClick={handleLogoutClick}
-                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                        >
-                            Cerrar Sesión
-                        </button>
-                    </>     
+                            {/* Icono de usuario */}
+                            <img
+                                src={require('assets/usuario.png')}
+                                alt="Usuario"
+                                className="w-8 h-8 cursor-pointer rounded-full"
+                                onClick={() => navigate('/user-profile')}
+                            />
+                            <button
+                                onClick={handleLogoutClick}
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                            >
+                                Cerrar Sesión
+                            </button>
+                        </>
                     ) : (
                         <button
                             onClick={handleRegisterClick}
@@ -94,7 +118,7 @@ function Navbar({ isAuthenticated, logout }) {
 }
 
 const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated || !!localStorage.getItem('token'),
+    isAuthenticated: state.auth.isAuthenticated || !!localStorage.getItem('token'),
 });
 
 export default connect(mapStateToProps, { logout })(Navbar);
