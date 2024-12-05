@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-
-const AdoptionForm = ({ selectedPet }) => {
+import SuccessMessage from "components/SuccessMessage";
+const AdopForm = () => {
     const navigate = useNavigate();
+
+    const [showSuccess, setShowSuccess] = useState(false);
     const token = localStorage.getItem("token");
     const [formData, setFormData] = useState({
         nombre_completo: "",
@@ -13,13 +15,13 @@ const AdoptionForm = ({ selectedPet }) => {
         experiencia_mascotas: false,
         espacio_suficiente: false,
         motivo_adopcion: "",
-        tipo_mascota: selectedPet?.type || "Perro",
+        tipo_mascota: "Perro",
         identificacion_oficial: null,
         comprobante_domicilio: null,
-        acepto_terminos: false,
-        confirmo_veracidad: false,
+        acepto_terminos: true,
+        confirmo_veracidad: true,
     });
-
+    
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData({
@@ -27,6 +29,41 @@ const AdoptionForm = ({ selectedPet }) => {
             [name]: type === "checkbox" ? checked : value,
         });
     };
+    const [loading, setLoading] = useState(true);
+    const [shouldRedirect, setShouldRedirect] = useState(false);
+    const location = useLocation(); // Usar useLocation para obtener los datos pasados con navigate
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Fetch user data
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/api/users/me/", {
+                    headers: {
+                        Authorization: `Token ${token}`,
+                    },
+                });
+                const { full_name, email, phone } = response.data;
+                setFormData((prevData) => ({
+                    ...prevData,
+                    nombre_completo: full_name || "",
+                    correo_electronico: email || "",
+                    numero_telefono: phone || "",
+                }));
+            } catch (error) {
+                console.error("Error al obtener datos del usuario:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [token]);
+
+    useEffect(() => {
+        if (shouldRedirect && navigate) {
+            navigate("/home");
+        }
+    }, [shouldRedirect, navigate]);
 
     const handleFileChange = (e) => {
         const { name, files } = e.target;
@@ -35,6 +72,12 @@ const AdoptionForm = ({ selectedPet }) => {
             [name]: files[0],
         });
     };
+    
+    const handleSuccessClose = () => {
+        setShowSuccess(false);
+        setShouldRedirect(true); // Activa la redirección
+    };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -57,9 +100,7 @@ const AdoptionForm = ({ selectedPet }) => {
                     "Authorization": `Token ${token}`, // Incluye el token en los encabezados
                 },
             });
-            alert("Formulario enviado exitosamente.");
-            console.log("Respuesta del servidor:", response.data);
-            navigate("/home"); // Redirige al usuario después de enviar
+            setShowSuccess(true);
         } catch (error) {
             if (error.response) {
                 console.error("Error de respuesta del servidor:", error.response.data);
@@ -80,9 +121,16 @@ const AdoptionForm = ({ selectedPet }) => {
     const handleCancel = () => {
         navigate(-1); // Redirige a la página anterior
     };
+    if (loading) {
+        return <p>Cargando...</p>;
+    }
+
 
     return (
-        <form onSubmit={handleSubmit} className="bg-pink-100 p-6 rounded-lg shadow-md">
+        <div>
+            
+            <form onSubmit={handleSubmit} className="bg-pink-100 p-6 rounded-lg shadow-md">
+            {showSuccess && <SuccessMessage message="Formulario enviado con éxito, se te enviara una notificacion cuando el cuidador acepte o rechace " onClose={handleSuccessClose} />}
             <h1 className="text-xl font-bold mb-4">Formulario de Adopción</h1>
             
             <div className="mb-4">
@@ -95,7 +143,16 @@ const AdoptionForm = ({ selectedPet }) => {
                     className="w-full p-2 border rounded"
                 />
             </div>
-            
+            <div className="mb-4">
+                <label className="block font-semibold">Correo Electrónico:</label>
+                <input
+                    type="email"
+                    name="correo_electronico"
+                    value={formData.correo_electronico}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded"
+                />
+            </div>
             <div className="mb-4">
                 <label className="block font-semibold">Teléfono:</label>
                 <input
@@ -174,7 +231,10 @@ const AdoptionForm = ({ selectedPet }) => {
                 </button>
             </div>
         </form>
+
+        </div>
+        
     );
 };
 
-export default AdoptionForm;
+export default AdopForm;

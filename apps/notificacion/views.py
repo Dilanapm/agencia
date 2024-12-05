@@ -5,33 +5,89 @@ from rest_framework import status
 from apps.notificacion.models import Notification
 from apps.users.models import UserProfile
 from apps.notificacion.serializers import NotificationSerializer
-class SendAdoptionRequestView(APIView):
-    permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden enviar solicitudes
+from rest_framework.parsers import MultiPartParser, FormParser
+# class SendAdoptionRequestView(APIView):
+#     permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden enviar solicitudes
 
-    def post(self, request):
-        adoptante = request.user  # Usuario autenticado (adoptante)
-        form_data = request.data.get('form_data')  # Datos del formulario
-        form_data['adoptante_user'] = adoptante.username
-        # Buscar al cuidador en la base de datos (puedes personalizar cómo seleccionarlo)
-        cuidador = UserProfile.objects.filter(role="Cuidador").first()
+#     def post(self, request):
+#         adoptante = request.user  # Usuario autenticado (adoptante)
+#         form_data = request.data.get('form_data')  # Datos del formulario
+#         form_data['adoptante_user'] = adoptante.username
+#         # Buscar al cuidador en la base de datos (puedes personalizar cómo seleccionarlo)
+#         cuidador = UserProfile.objects.filter(role="Cuidador").first()
 
-        if not cuidador:
-            return Response({"error": "No hay cuidadores disponibles en este momento."}, status=status.HTTP_404_NOT_FOUND)
+#         if not cuidador:
+#             return Response({"error": "No hay cuidadores disponibles en este momento."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Crear la notificación
-        notification = Notification.objects.create(
-            user=cuidador,
-            role=cuidador.role,
-            title=f"Solicitud de adopción de {adoptante.username}",
-            message=f"¡Hey! {adoptante.username} te ha enviado una solicitud de adopción.",
-            notification_type="Solicitud de Adopción",
-            form_data={**form_data, "adoptante_user": adoptante.username}
-        )
+#         # Crear la notificación
+#         notification = Notification.objects.create(
+#             user=cuidador,
+#             role=cuidador.role,
+#             title=f"Solicitud de adopción de {adoptante.username}",
+#             message=f"¡Hey! {adoptante.username} te ha enviado una solicitud de adopción.",
+#             notification_type="Solicitud de Adopción",
+#             form_data={**form_data, "adoptante_user": adoptante.username}
+#         )
 
-        return Response(
-            {"message": "Solicitud enviada exitosamente.", "notification_id": notification.id}, 
-            status=status.HTTP_201_CREATED
-        )
+#         return Response(
+#             {"message": "Solicitud enviada exitosamente.", "notification_id": notification.id}, 
+#             status=status.HTTP_201_CREATED
+#         )
+
+class CreateAdoptionNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # Manejar archivos y datos en el request
+
+    def post(self, request, format=None):
+        try:
+            # Obtener el usuario adoptante
+            adoptante = request.user
+            
+            # Seleccionar al primer cuidador disponible (puedes cambiar esta lógica según tu aplicación)
+            cuidador = UserProfile.objects.filter(role="Cuidador").first()
+            if not cuidador:
+                return Response({"error": "No hay cuidadores disponibles."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Recopilar los datos del formulario
+            form_data = request.data.dict()  # Convierte los datos a un diccionario
+            identificacion_oficial = request.FILES.get('identificacion_oficial')
+            comprobante_domicilio = request.FILES.get('comprobante_domicilio')
+
+            # Adjuntar URLs de los archivos al campo form_data
+            if identificacion_oficial:
+                form_data['identificacion_oficial'] = identificacion_oficial.name
+            if comprobante_domicilio:
+                form_data['comprobante_domicilio'] = comprobante_domicilio.name
+
+            # Crear la notificación
+            notification = Notification.objects.create(
+                user=cuidador,
+                role=cuidador.role,
+                title=f"Solicitud de adopción de {adoptante.username}",
+                message=f"¡Hey! {adoptante.username} te ha enviado una solicitud de adopción.",
+                notification_type="Solicitud de Adopción",
+                form_data={**form_data, "adoptante_user": adoptante.username},
+            )
+
+            # Guardar los archivos en el sistema de almacenamiento si es necesario
+            if identificacion_oficial:
+                with open(f'media/identificaciones/{identificacion_oficial.name}', 'wb+') as destination:
+                    for chunk in identificacion_oficial.chunks():
+                        destination.write(chunk)
+
+            if comprobante_domicilio:
+                with open(f'media/comprobantes/{comprobante_domicilio.name}', 'wb+') as destination:
+                    for chunk in comprobante_domicilio.chunks():
+                        destination.write(chunk)
+
+            return Response(
+                {"message": "Notificación creada con éxito.", "notification_id": notification.id},
+                status=status.HTTP_201_CREATED
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 class ListUserNotificationsView(APIView):
     permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden acceder
@@ -200,3 +256,14 @@ class MarkNotificationAsReadView(APIView):
         notification.save()
 
         return Response({"message": "Notificación marcada como leída.", "notification_id": notification.id}, status=200)
+    
+class CheckUserNotificationsView(APIView):
+    permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden acceder
+
+    def get(self, request):
+        user = request.user  # Usuario autenticado
+
+        # Verificar si el usuario tiene notificaciones no leídas
+        has_unread_notifications = Notification.objects.filter(user=user, is_read=False).exists()
+
+        return Response({"has_notifications": has_unread_notifications}, status=200)
