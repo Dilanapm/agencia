@@ -6,33 +6,38 @@ from apps.notificacion.models import Notification
 from apps.users.models import UserProfile
 from apps.notificacion.serializers import NotificationSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
-# class SendAdoptionRequestView(APIView):
-#     permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden enviar solicitudes
 
-#     def post(self, request):
-#         adoptante = request.user  # Usuario autenticado (adoptante)
-#         form_data = request.data.get('form_data')  # Datos del formulario
-#         form_data['adoptante_user'] = adoptante.username
-#         # Buscar al cuidador en la base de datos (puedes personalizar cómo seleccionarlo)
-#         cuidador = UserProfile.objects.filter(role="Cuidador").first()
 
-#         if not cuidador:
-#             return Response({"error": "No hay cuidadores disponibles en este momento."}, status=status.HTTP_404_NOT_FOUND)
+class NotificationDetailView(APIView):
+    permission_classes = [IsAuthenticated]  # Solo usuarios autenticados
 
-#         # Crear la notificación
-#         notification = Notification.objects.create(
-#             user=cuidador,
-#             role=cuidador.role,
-#             title=f"Solicitud de adopción de {adoptante.username}",
-#             message=f"¡Hey! {adoptante.username} te ha enviado una solicitud de adopción.",
-#             notification_type="Solicitud de Adopción",
-#             form_data={**form_data, "adoptante_user": adoptante.username}
-#         )
+    def get(self, request, notification_id):
+        user = request.user
 
-#         return Response(
-#             {"message": "Solicitud enviada exitosamente.", "notification_id": notification.id}, 
-#             status=status.HTTP_201_CREATED
-#         )
+        # Verificar que el usuario sea un cuidador
+        if user.role != "Cuidador":
+            return Response({"error": "No tienes permiso para realizar esta acción."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Obtener la notificación específica
+        try:
+            notification = Notification.objects.get(id=notification_id, user=user)
+        except Notification.DoesNotExist:
+            return Response({"error": "Notificación no encontrada o no tienes permiso para acceder a ella."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Retornar los detalles de la notificación
+        return Response({
+            "id": notification.id,
+            "title": notification.title,
+            "message": notification.message,
+            "form_data": notification.form_data,  # Información enviada por el adoptante
+            "created_at": notification.created_at,
+            "notification_type": notification.notification_type,
+            "is_read": notification.is_read,
+            "documents": {
+                "identificacion_oficial": notification.form_data.get("identificacion_oficial"),
+                "comprobante_domicilio": notification.form_data.get("comprobante_domicilio"),
+            }
+        }, status=status.HTTP_200_OK)
 
 class CreateAdoptionNotificationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -168,7 +173,7 @@ class RespondAdoptionRequestView(APIView):
         if decision == "aceptar":
             message = (
                 f"Felicidades, tu solicitud fue aceptada por {user.username}. "
-                f"Puedes chatear con ella mediante WhatsApp mostrándole un screenshot del mensaje de aprobación."
+                f"Puedes chatear con el mismo mediante WhatsApp mostrándole un screenshot del mensaje de aprobación. este es su numero {user.phone}"
             )
         else:
             message = "Lastimosamente no calificas para poder adoptar al perrito."

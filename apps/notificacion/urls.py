@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateAdoptionNotificationView,ListUserNotificationsView, ListUnreadNotificationsView, MarkAllNotificationsAsReadView, RespondAdoptionRequestView, ListAdoptanteNotificationsView,ListAdoptanteUnreadNotificationsView, MarkAllNotAdoptant, MarkNotificationAsReadView, CheckUserNotificationsView
+from .views import CreateAdoptionNotificationView,ListUserNotificationsView, ListUnreadNotificationsView, MarkAllNotificationsAsReadView, RespondAdoptionRequestView, ListAdoptanteNotificationsView,ListAdoptanteUnreadNotificationsView, MarkAllNotAdoptant, MarkNotificationAsReadView, CheckUserNotificationsView, NotificationDetailView
 
 urlpatterns = [
      path('adopcion/crear/', CreateAdoptionNotificationView.as_view(), name='crear-adopcion'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('adoptante-mark-all-as-read/', MarkAllNotAdoptant.as_view(), name='adoptante-mark-all-as-read'),
     path('mark-as-read/<int:notification_id>/', MarkNotificationAsReadView.as_view(), name='mark-as-read'),
     path('check-notifications/', CheckUserNotificationsView.as_view(), name='check-notifications'),
+    path('detalle/<int:notification_id>/', NotificationDetailView.as_view(), name='notification-detail'),
 ]

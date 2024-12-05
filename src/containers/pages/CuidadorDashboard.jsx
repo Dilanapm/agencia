@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logout } from '../../redux/actions/auth'; // Acción de logout desde Redux
-import api from '../../api/axiosConfig'; // Configuración de Axios para llamadas a la API
+import { logout } from 'redux/actions/auth'; // Acción de logout desde Redux
+import api from 'api/axiosConfig'; // Configuración de Axios para llamadas a la API
 import MascotaCard from 'components/adoption/MascotaCard';
+import NotificationsDropdown from 'components/notification/NotificationsDropdown'; // Importa las notificaciones
+
 function CuidadorDashboard({ logout }) {
     const navigate = useNavigate();
     const [mascotas, setMascotas] = useState([]); // Estado para almacenar las mascotas
     const [loading, setLoading] = useState(true); // Estado para indicar si los datos están cargando
     const [error, setError] = useState(null); // Estado para manejar errores
     const [userName, setUserName] = useState("");
+
     useEffect(() => {
-        // Validar el rol del usuario
         const role = localStorage.getItem('role');
-        console.log('Rol en localStorage:', role);
         if (role !== 'Cuidador') {
-            console.log('No es Cuidador, redirigiendo...');
             navigate('/');
         } else {
-            fetchMascotas(); // Llamada a la API para obtener las mascotas
+            fetchMascotas();
             fetchUserName();
         }
     }, [navigate]);
@@ -32,22 +32,22 @@ function CuidadorDashboard({ logout }) {
             setUserName("Usuario");
         }
     };
-    
+
     const fetchMascotas = async () => {
         try {
-            const response = await api.get('/api/mascotas/lista/'); // Endpoint para obtener las mascotas
-            setMascotas(response.data.mascotas || []); // Actualizar el estado con las mascotas
+            const response = await api.get('/api/mascotas/lista/');
+            setMascotas(response.data.mascotas || []);
         } catch (error) {
             console.error('Error al obtener las mascotas:', error);
             setError('Error al cargar las mascotas. Intenta nuevamente.');
         } finally {
-            setLoading(false); // Finalizar la carga
+            setLoading(false);
         }
     };
 
     const handleLogoutClick = () => {
-        logout(); // Llama a la acción para hacer logout
-        navigate('/'); // Redirige al usuario
+        logout();
+        navigate('/');
     };
 
     return (
@@ -57,12 +57,16 @@ function CuidadorDashboard({ logout }) {
                     <h1 className="text-2xl font-bold text-gray-800">
                         Bienvenido, {userName}!
                     </h1>
-                    <button
-                        onClick={handleLogoutClick}
-                        className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300"
-                    >
-                        Cerrar Sesión
-                    </button>
+                    <div className="flex items-center space-x-4">
+                        {/* Componente de Notificaciones */}
+                        <NotificationsDropdown />
+                        <button
+                            onClick={handleLogoutClick}
+                            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300"
+                        >
+                            Cerrar Sesión
+                        </button>
+                    </div>
                 </header>
                 <main className="flex-1 p-6">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Mascotas Registradas</h2>
@@ -75,8 +79,7 @@ function CuidadorDashboard({ logout }) {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {mascotas.map((mascota) => (
-                                <MascotaCard key={mascota.id} mascota={mascota}
-                                showAdoptButton={false}/>
+                                <MascotaCard key={mascota.id} mascota={mascota} showAdoptButton={false} />
                             ))}
                         </div>
                     )}
@@ -86,5 +89,4 @@ function CuidadorDashboard({ logout }) {
     );
 }
 
-// Conectando el componente a Redux
 export default connect(null, { logout })(CuidadorDashboard);

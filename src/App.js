@@ -22,6 +22,7 @@ import AgregarMascota from 'containers/pages/AgregarMascota';
 import CuidadorLayout from 'components/Cuidador/CuidadorLayout';
 import MascotaProfile from 'containers/pages/MascotaProfile';
 import AdopForm from 'containers/pages/AdopForm';
+import NotificationDetail from 'containers/pages/NotificationDetail';
 const stripePromise = loadStripe('pk_test_51QMhK1BxZqvldvODisEvh7vH7OkJwudfS9PkVZGzxyK1EubsafmQM7ts9KjpNk3iiNVR745r1ciPyTZGP4KeLjsS00wdqu02uo');
 
 function App() {
@@ -56,6 +57,8 @@ function App() {
           <Route path="/cuidador" element={<CuidadorLayout />}>
               {/* Ruta predeterminada: Dashboard */}
               <Route index element={<CuidadorDashboard />} /> 
+              {/* Ruta para ver notificacion a detalle */}
+              <Route path="notification-detail/:notificationId" element={<NotificationDetail />} />
 
               {/* Ruta para registrar nueva mascota */}
               <Route path="registrar-mascota" element={<AgregarMascota />} /> 

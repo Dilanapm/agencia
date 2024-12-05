@@ -195,7 +195,7 @@ const AdopForm = () => {
             </div>
             
             <div className="mb-4">
-                <label className="block font-semibold">Identificación Oficial:</label>
+                <label className="block font-semibold">Fotocopia de carnet:</label>
                 <input
                     type="file"
                     name="identificacion_oficial"
@@ -205,7 +205,7 @@ const AdopForm = () => {
             </div>
             
             <div className="mb-4">
-                <label className="block font-semibold">Comprobante de Domicilio:</label>
+                <label className="block font-semibold">Foto de factura de luz o cualquier servicio del hogar:</label>
                 <input
                     type="file"
                     name="comprobante_domicilio"

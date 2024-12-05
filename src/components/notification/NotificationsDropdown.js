@@ -2,24 +2,34 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import bell from "../../assets/notifications/bell.png"
 import notification from "../../assets/notifications/notification.png"; // Con notificaciones nuevas
-
+import api from "api/axiosConfig";
+import { useNavigate } from "react-router-dom";
 const NotificationsDropdown = () => {
+    
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [filter, setFilter] = useState("all"); // "all" o "unread"
     const [hasUnread, setHasUnread] = useState(false);
-
+    const [userRole, setUserRole] = useState(""); // Almacena el rol del usuario
     // Toggle dropdown visibility
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     // Fetch notifications from the backend
     const fetchNotifications = async () => {
         try {
-            const response = await axios.get("/api/notifications/adoptante-notifications/", {
-                headers: {
-                    Authorization: `Token ${localStorage.getItem("token")}`,
-                },
-            });
+            // Obtener el rol del usuario
+            const userResponse = await api.get("/api/users/me/");
+            const role = userResponse.data.role;
+            setUserRole(role);
+
+            // Usar el endpoint según el rol
+            const endpoint =
+                role === "Cuidador"
+                    ? "/api/notifications/user-notifications/"
+                    : "/api/notifications/adoptante-notifications/";
+
+            const response = await api.get(endpoint);
             setNotifications(response.data);
 
             // Verificar si hay notificaciones no leídas
@@ -30,24 +40,23 @@ const NotificationsDropdown = () => {
         }
     };
 
-    // Mark a notification as read
+    // Marcar una notificación como leída y redirigir
     const markAsRead = async (notificationId) => {
-        try {
-            await axios.put(`/api/notifications/mark-as-read/${notificationId}/`, null, {
-                headers: {
-                    Authorization: `Token ${localStorage.getItem("token")}`,
-                },
-            });
-            // Actualiza el estado local
-            setNotifications((prev) =>
-                prev.map((notif) =>
-                    notif.id === notificationId ? { ...notif, is_read: true } : notif
-                )
-            );
-            setHasUnread(notifications.some((notif) => !notif.is_read));
-        } catch (error) {
-            console.error("Error marking notification as read:", error);
-        }
+    try {
+        await api.put(`/api/notifications/mark-as-read/${notificationId}/`);
+        // Actualiza el estado local
+        setNotifications((prev) =>
+            prev.map((notif) =>
+                notif.id === notificationId ? { ...notif, is_read: true } : notif
+            )
+        );
+        setHasUnread(notifications.some((notif) => !notif.is_read));
+
+        // Redirigir a la página de detalles
+        navigate(`/cuidador/notification-detail/${notificationId}`);
+    } catch (error) {
+        console.error("Error al marcar la notificación como leída:", error);
+    }
     };
 
     // Load notifications on component mount
