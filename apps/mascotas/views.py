@@ -2,15 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from apps.categoria.serializer import CategoriaSerializer
-from apps.users.models import UserProfile
 from .models import Mascotas, ViewCount
 from apps.categoria.models import Categoria
-
+from .models import Mascotas
 from .serializer import MascotaSerializer, MascotaListaSerializer, MascotaSerializerCrear
-from rest_framework.parsers import MultiPartParser, FormParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MascotaActualizarVista(APIView):
@@ -48,16 +48,18 @@ class MascotaActualizarVista(APIView):
 
 class MascotaVistaLista(APIView):
     permission_classes = (permissions.AllowAny,)
-    def get(self,request,format=None):
+
+    def get(self, request, format=None):
         if Mascotas.objects.all().exists():
             mascotas = Mascotas.objects.all()
-            serializer = MascotaListaSerializer(mascotas,many=True)
+            serializer = MascotaListaSerializer(mascotas, many=True)
             return Response({'mascotas': serializer.data}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'no se encuentra mascota'}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response({'error': 'No se encuentra mascota'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class MascotaCrearVista(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
@@ -78,9 +80,61 @@ class MascotaCrearVista(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CategoriaPredefinidaVista(APIView):
     permission_classes = [permissions.AllowAny]
+
     def get(self, request, format=None):
-        categorias  = Categoria.objects.all()
+        categorias = Categoria.objects.all()
         serializer = CategoriaSerializer(categorias, many=True)
         return Response({'categorias': serializer.data}, status=status.HTTP_200_OK)
+
+
+class MascotaRecomendadorVista(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, format=None):
+        try:
+            vivienda = request.GET.get('vivienda')
+            tiempo_cuidado = request.GET.get('tiempo_cuidado')
+            niños = request.GET.get('niños') == 'true'  # Procesamos el booleano
+            actividad = request.GET.get('actividad')
+            experiencia = request.GET.get('experiencia')
+            tamano = request.GET.get('tamano')
+
+            # Valida los parámetros antes de buscar
+            if not all([vivienda, tiempo_cuidado, actividad, experiencia, tamano]):
+                return Response(
+                    {"error": "Faltan parámetros requeridos."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Filtra según los parámetros
+            queryset = Mascotas.objects.filter(disponible=True)
+
+            if vivienda:
+                queryset = queryset.filter(vivienda__icontains=vivienda)
+            if tiempo_cuidado:
+                queryset = queryset.filter(tiempo_cuidado=tiempo_cuidado)
+            if actividad:
+                queryset = queryset.filter(actividad=actividad)
+            if experiencia:
+                queryset = queryset.filter(experiencia=experiencia)
+            if tamano:
+                queryset = queryset.filter(tamano=tamano)
+            if niños is not None:
+                queryset = queryset.filter(niños=niños)
+
+            if queryset.exists():
+                serializer = MascotaListaSerializer(queryset, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "No se encontraron mascotas que coincidan con tus preferencias."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except Exception as e:
+            return Response(
+                {"error": f"Ocurrió un error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
