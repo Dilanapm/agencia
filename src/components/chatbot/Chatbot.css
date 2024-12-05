@@ -1,0 +1,110 @@
+/* Estilo del chatbot */
+.chatbot {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .chatbot-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .chatbot-btn img {
+    width: 40px;  /* Ajusta el tamaño del icono */
+    height: auto;
+  }
+  
+  /* Estilo del cuadro de chat */
+  .chatbox {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    width: 300px;  /* Ajusta el tamaño de la caja del chat */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-history {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 5px;
+  }
+  
+  .chat-history p {
+    margin: 5px 0;
+  }
+  
+  .chat-history strong {
+    color: #4CAF50;  /* Cambia el color del nombre para diferenciar al usuario y bot */
+  }
+  
+  /* Estilos del formulario de entrada */
+  form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  form input {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-right: 10px;
+    outline: none;
+  }
+  
+  form input:focus {
+    border-color: #4CAF50;  /* Cambiar el color cuando el input está enfocado */
+  }
+  
+  form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  form button:hover {
+    background-color: #45a049;
+  }
+  
+  form button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  /* Ajustes responsivos */
+  @media (max-width: 600px) {
+    .chatbox {
+      width: 90%;
+    }
+  
+    .chatbot-btn img {
+      width: 35px;  /* Ajusta el tamaño en pantallas pequeñas */
+    }
+  }
+  

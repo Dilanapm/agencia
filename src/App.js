@@ -22,48 +22,53 @@ import AgregarMascota from 'containers/pages/AgregarMascota';
 import CuidadorLayout from 'components/Cuidador/CuidadorLayout';
 import MascotaProfile from 'containers/pages/MascotaProfile';
 
+// Importa el Chatbot
+import Chatbot from './components/chatbot/chatbot'; // Asegúrate de tener el Chatbot correctamente importado
+
+// Carga la clave pública de Stripe
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
 function App() {
   return (
     <Provider store={store}>
       <Router>
-        <Routes>
-          <Route path="*" element={<Error404 />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/adoptar" element={<Adoption />} />
-          <Route
-            path="/donacion"
-            element={
-              <Elements stripe={stripePromise}>
-                <Donation />
-              </Elements>
-            }
-          />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/contactar" element={<Contact />} />
-          <Route path="/Login" element={<LoginForm />} />
-          <Route path="/register" element={<RegisterForm />} />
-          <Route path="/curiosities" element={<Curiosities />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/user-profile" element={<UserProfile />} />
-          <Route path="/adoption-form" element={<Adoption />} /> {/* NUEVA RUTA AGREGADA */}
-          <Route path="/pass-forget" element={<ResetPassword />} />
-          <Route path="/reset-password" element={<ResetPasswordConfirm />} />
+        <div className="App">
+          {/* Rutas del sistema */}
+          <Routes>
+            <Route path="*" element={<Error404 />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/adoptar" element={<Adoption />} />
+            <Route
+              path="/donacion"
+              element={
+                <Elements stripe={stripePromise}>
+                  <Donation />
+                </Elements>
+              }
+            />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/contactar" element={<Contact />} />
+            <Route path="/Login" element={<LoginForm />} />
+            <Route path="/register" element={<RegisterForm />} />
+            <Route path="/curiosities" element={<Curiosities />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/adoption-form" element={<Adoption />} />
+            <Route path="/pass-forget" element={<ResetPassword />} />
+            <Route path="/reset-password" element={<ResetPasswordConfirm />} />
 
-          {/* Rutas específicas para el cuidador */}
-          <Route path="/cuidador" element={<CuidadorLayout />}>
-              {/* Ruta predeterminada: Dashboard */}
-              <Route index element={<CuidadorDashboard />} /> 
+            {/* Rutas específicas para el cuidador */}
+            <Route path="/cuidador" element={<CuidadorLayout />}>
+              <Route index element={<CuidadorDashboard />} />
+              <Route path="registrar-mascota" element={<AgregarMascota />} />
+              <Route path="mascota/detalle/:id" element={<MascotaProfile />} />
+            </Route>
+          </Routes>
 
-              {/* Ruta para registrar nueva mascota */}
-              <Route path="registrar-mascota" element={<AgregarMascota />} /> 
-
-              {/* Ruta para el perfil de mascota */}
-              <Route path="mascota/detalle/:id" element={<MascotaProfile />} /> 
-          </Route>
-        </Routes>
+          {/* Botón flotante del Chatbot visible en todas las páginas */}
+          <Chatbot />
+        </div>
       </Router>
     </Provider>
   );
