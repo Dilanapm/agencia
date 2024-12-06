@@ -21,6 +21,7 @@ import AgregarMascota from 'containers/pages/AgregarMascota';
 // Carga la clave pública de Stripe
 import CuidadorLayout from 'components/Cuidador/CuidadorLayout';
 import MascotaProfile from 'containers/pages/MascotaProfile';
+import Chatbot from './components/chatbot/Chatbot';
 
 const stripePromise = loadStripe('tu-clave-pública-de-Stripe');
 
@@ -28,6 +29,7 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+      <Chatbot />
         <Routes>
           <Route path="*" element={<Error404 />} />
           <Route path="/" element={<Home />} />

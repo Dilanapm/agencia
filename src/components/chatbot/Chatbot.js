@@ -49,7 +49,7 @@ const Chatbot = () => {
         "Puedo ver las mascotas que están en adopción"
       ],
       responses: [
-        "Tenemos varias mascotas disponibles, incluyendo perros, gatos y pequeños roedores. Puedes verlas en nuestra página de adopción.",
+        "Tenemos varias mascotas disponibles, incluyendo perros pequeños roedores. Puedes verlas en nuestra página de adopción.",
         "En nuestra página podrás ver las fotos y descripciones de las mascotas disponibles para adopción.",
         "Sí, tenemos perros, gatos y otras mascotas. Consulta la sección de adopciones para más información."
       ]
